@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add New Trainee</title>
+  <!-- Add SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+  <!-- Add SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      background-color: #3b463e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .form-container {
+      background-color: #084018;
+      color: white;
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-header {
+      background-color: white;
+      color: #084018;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-grid, .form-grid-wide {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .form-grid-wide {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group .upload-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input, select {
+      padding: 0.75rem;
+      border: 2px solid #f5cc00;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background-color: white;
+      color: black;
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
+    .upload-btn {
+      background-color: #f5cc00;
+      color: black;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      width: fit-content;
+    }
+
+    .upload-btn img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: flex-end;
+    }
+
+    .clear-btn, .confirm-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .clear-btn {
+      background-color: #6b7280;
+      color: white;
+    }
+
+    .confirm-btn {
+      background-color: #f5cc00;
+      color: black;
+    }
+
+    @media (max-width: 768px) {
+      .form-container {
+        padding: 1rem;
+      }
+
+      .form-grid, .form-grid-wide {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    small.username-helper {
+      font-size: 1.15rem;
+      color: #ff6b6b;
+      font-weight: bold;
+      font-style: italic;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <span class="close-btn" onclick="closeModal()">&times;</span>
+  <div class="form-container">
+    <div class="form-header">ADD NEW TRAINEE</div>
+
+    <form id="addTraineeForm" onsubmit="submitForm(event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>STUDENT ID:</label>
+          <input type="text" name="student_id" required placeholder="Enter Student ID">
+        </div>
+        <div class="form-group">
+          <label>PROGRAM:</label>
+          <select name="program" required onchange="updateSections()">
+            <option value="" disabled selected hidden>Select Program</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>SECTION:</label>
+          <select name="section" required>
+            <option value="" disabled selected hidden>Select Section</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Last Name:</label>
+          <input type="text" name="last_name" required placeholder="Enter Last Name">
+        </div>
+        <div class="form-group">
+          <label>First Name:</label>
+          <input type="text" name="first_name" required placeholder="Enter First Name">
+        </div>
+        <div class="form-group">
+          <label>Middle Name:</label>
+          <input type="text" name="middle_name" placeholder="Enter Middle Name">
+        </div>
+        <div class="form-group">
+          <label>Extension Name:</label>
+          <select name="extension_name">
+            <option value="" selected>None</option>
+            <option value="Jr.">Jr.</option>
+            <option value="Sr.">Sr.</option>
+            <option value="II">II</option>
+            <option value="III">III</option>
+            <option value="IV">IV</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-wide">
+        <div class="form-group">
+          <label>EMAIL:</label>
+          <input type="email" name="email" required placeholder="Enter Email">
+        </div>
+        <div class="form-group">
+          <label>USERNAME:</label>
+          <input type="text" name="username" id="usernameInput" required placeholder="surname12@" pattern="^[a-z]+\d{2}@${1}$" title="Username must be surname (lowercase), followed by 2 digits, ending with @ (e.g., mendeja23@)">
+          <small class="username-helper">Format: surname followed by 2 digits, ending with @ (e.g., mendeja23@)</small>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>CONTACT NUMBER:</label>
+          <input type="text" name="contact_number" required placeholder="Enter Contact Number" pattern="[0-9]{11}" title="Please enter a valid 11-digit phone number">
+        </div>
+        <div class="form-group">
+          <label>UPLOAD PROFILE PICTURE:</label>
+          <input type="file" name="profile_image" accept="image/*" style="display: none" id="profileInput">
+          <button type="button" class="upload-btn" onclick="document.getElementById('profileInput').click()">
+            <img src="icons/upload.png" alt="Upload" />
+            Upload Profile
+          </button>
+          <span id="selectedFileName"></span>
+        </div>      
+      </div>
+
+      <div class="button-group">
+        <button type="reset" class="clear-btn">CLEAR</button>
+        <button type="submit" class="confirm-btn">CONFIRM</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    let assignedSections = [];
+    let programs = [];
+
+    // Load coordinator's assigned sections when page loads
+    async function loadCoordinatorSections() {
+      try {
+        const response = await fetch('php/get_coordinator_sections.php');
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to load sections');
+        }
+
+        assignedSections = data.assigned_sections;
+        programs = data.programs;
+
+        // Populate program dropdown
+        const programSelect = document.querySelector('select[name="program"]');
+        programSelect.innerHTML = '<option value="" disabled selected hidden>Select Program</option>';
+        programs.forEach(program => {
+          const option = document.createElement('option');
+          option.value = program;
+          option.textContent = program;
+          programSelect.appendChild(option);
+        });
+
+        // Update sections based on first program
+        if (programs.length > 0) {
+          updateSections();
+        }
+
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message || 'An error occurred while loading sections',
+          confirmButtonColor: '#0e6c38'
+        });
+      }
+    }
+
+    // Update sections based on selected program
+    function updateSections() {
+      const programSelect = document.querySelector('select[name="program"]');
+      const sectionSelect = document.querySelector('select[name="section"]');
+      const selectedProgram = programSelect.value;
+
+      // Clear current sections
+      sectionSelect.innerHTML = '<option value="" disabled selected hidden>Select Section</option>';
+
+      // Add sections for selected program
+      const programSections = assignedSections.filter(section => section.program === selectedProgram);
+      programSections.forEach(section => {
+        const option = document.createElement('option');
+        option.value = section.section;
+        option.textContent = section.section;
+        sectionSelect.appendChild(option);
+      });
+    }
+
+    // Show selected filename for profile picture
+    document.getElementById('profileInput').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || 'No file selected';
+      document.getElementById('selectedFileName').textContent = fileName;
+    });
+
+    // Auto-suggest username based on last name
+    const lastNameInput = document.querySelector('input[name="last_name"]');
+    const usernameInput = document.getElementById('usernameInput');
+    let usernameManuallyEdited = false;
+
+    lastNameInput.addEventListener('input', function() {
+      if (!usernameManuallyEdited || !usernameInput.value || usernameInput.value === usernameInput.defaultValue) {
+        const surname = this.value.toLowerCase().replace(/[^a-z]/g, '');
+        const randomDigits = Math.floor(10 + Math.random() * 90); // 2 random digits
+        usernameInput.value = surname + randomDigits + '@';
+        usernameInput.defaultValue = usernameInput.value;
+      }
+    });
+    usernameInput.addEventListener('input', function() {
+      // If the user changes the username, stop auto-suggesting
+      usernameManuallyEdited = true;
+    });
+
+    // Form submission
+    async function submitForm(event) {
+      event.preventDefault();
+      
+      const form = event.target;
+      const formData = new FormData(form);
+
+      // Username validation
+      const username = formData.get('username');
+      const usernamePattern = /^[a-z]+\d{2}@$/;
+      if (!usernamePattern.test(username)) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Username',
+          text: 'Username must be surname (lowercase), followed by 2 digits, ending with @ (e.g., mendeja23@)',
+          confirmButtonColor: '#0e6c38'
+        });
+        return;
+      }
+
+      // Validate that selected program and section are in assigned sections
+      const program = formData.get('program');
+      const section = formData.get('section');
+      const isValid = assignedSections.some(s => 
+        s.program === program && 
+        s.section === section
+      );
+
+      if (!isValid) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Invalid program or section selection',
+          confirmButtonColor: '#0e6c38'
+        });
+        return;
+      }
+
+      try {
+        // Show loading state
+        Swal.fire({
+          title: 'Adding Trainee',
+          text: 'Please wait...',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        // Submit form data
+        const response = await fetch('php/add_trainee.php', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Trainee added successfully',
+            confirmButtonColor: '#0e6c38'
+          }).then(() => {
+            // Clear the form
+            form.reset();
+            // Notify parent window to refresh trainee list
+            window.parent.postMessage({ type: 'REFRESH_TRAINEES' }, '*');
+          });
+        } else {
+          throw new Error(data.message || 'Failed to add trainee');
+        }
+
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message || 'An error occurred while adding the trainee',
+          confirmButtonColor: '#0e6c38'
+        });
+      }
+    }
+
+    function closeModal() {
+      window.parent.document.getElementById('addTraineeModal').style.display = 'none';
+    }
+
+    // Load sections when page loads
+    document.addEventListener('DOMContentLoaded', loadCoordinatorSections);
+  </script>
+</body>
+</html>

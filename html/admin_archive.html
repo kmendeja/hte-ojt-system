@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Archived Coordinators</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+    .header {
+      background-color: #0e6c38;
+      color: white;
+      padding: 15px;
+      font-size: 24px;
+      text-align: center;
+    }
+    .container {
+      width: 90%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 1350px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto; /* This allows columns to adjust based on content */
+  }
+
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    .table th {
+      background-color: #028a3d;
+      color: white;
+    }
+    .menu {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+    }
+    .menu span {
+      font-size: 24px;
+      padding: 5px 10px;
+      display: inline-block;
+    }
+    .menu-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #028a3d;
+      min-width: 120px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      text-align: center;
+      z-index: 10;
+    }
+    .menu-content a {
+      color: white;
+      padding: 10px;
+      display: block;
+      text-decoration: none;
+    }
+    .menu-content a:hover {
+      background-color: #dfd61e;
+    }
+    .menu.active .menu-content {
+      display: block;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal-content h2 {
+      margin-bottom: 20px;
+      color: #0e6c38;
+    }
+    .confirm-btn, .cancel-btn {
+      display: inline-block;
+      width: 100px;
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
+    .confirm-btn {
+      background-color: #0e6c38;
+    }
+    .cancel-btn {
+      background-color: #ccc;
+      color: black;
+    }
+
+    .dark-mode {
+     background-color: #292b40;
+     color: #f1f1f1;
+    }
+
+    body.dark-mode table, body-dark-mode th, body-dark-mode td,
+    body.light-mode table, body-light-mode th, body-light-mode td {
+      color: #000 !important;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="header">ARCHIVED COORDINATORS</div>
+  <div class="container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Profile</th>
+          <th>Employee ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Contact Number</th>
+          <th>Username</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="archiveTableBody">
+        <!-- JS will populate archived coordinators here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 id="confirmMessage">Are you sure?</h2>
+      <button class="confirm-btn" onclick="handleAction()">Yes</button>
+      <button class="cancel-btn" onclick="closeConfirmModal()">No</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    let actionType = "";
+    let targetRow = null;
+    let targetUserId = null;
+
+    function toggleMenu(elem) {
+      elem.parentElement.classList.toggle("active");
+    }
+
+    function loadArchivedCoordinators() {
+      fetch('php/admin_list_archived_coordinators.php')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('archiveTableBody');
+          tbody.innerHTML = '';
+          if (data.success && data.coordinators.length) {
+            data.coordinators.forEach(coor => {
+              const img = coor.profile_picture
+                ? `<img src="${coor.profile_picture}" alt="Profile" style="width:40px;height:40px;border-radius:50%;">`
+                : 'No Image';
+              tbody.innerHTML += `
+                <tr>
+                  <td>${img}</td>
+                  <td>${coor.employee_id || ''}</td>
+                  <td>${coor.full_name || ''}</td>
+                  <td>${coor.email || ''}</td>
+                  <td>${coor.contact_number || ''}</td>
+                  <td>${coor.username || ''}</td>
+                  <td>
+                    <div class="menu">
+                      <span onclick="toggleMenu(this)">⋮</span>
+                      <div class="menu-content">
+                        <a href="#" onclick="confirmRestore(this, ${coor.user_id})">Restore</a>
+                        <a href="#" onclick="confirmPermanentDelete(this, ${coor.user_id})">Delete</a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            });
+          } else {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No archived coordinators found.</td></tr>';
+          }
+        });
+    }
+
+    function confirmRestore(elem, userId) {
+      actionType = "restore";
+      targetRow = elem.closest('tr');
+      targetUserId = userId;
+      document.getElementById('confirmMessage').innerText = "Restore this coordinator?";
+      document.getElementById('confirmModal').style.display = "flex";
+    }
+
+    function confirmPermanentDelete(elem, userId) {
+      actionType = "delete";
+      targetRow = elem.closest('tr');
+      targetUserId = userId;
+      document.getElementById('confirmMessage').innerText = "Permanently delete this coordinator?";
+      document.getElementById('confirmModal').style.display = "flex";
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').style.display = "none";
+      actionType = "";
+      targetRow = null;
+      targetUserId = null;
+    }
+
+    function handleAction() {
+      if (!targetUserId) return closeConfirmModal();
+      if (actionType === "restore") {
+        fetch('php/admin_restore_coordinator.php', {
+          method: 'POST',
+          body: (() => { const fd = new FormData(); fd.append('user_id', targetUserId); return fd; })()
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Restored!',
+              text: data.message,
+              confirmButtonColor: '#084018'
+            }).then(() => loadArchivedCoordinators());
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message || 'An error occurred.',
+              confirmButtonColor: '#d33'
+            });
+          }
+          closeConfirmModal();
+        })
+        .catch(() => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to restore coordinator.',
+            confirmButtonColor: '#d33'
+          });
+          closeConfirmModal();
+        });
+      } else if (actionType === "delete") {
+        fetch('php/admin_delete_coordinator.php', {
+          method: 'POST',
+          body: (() => { const fd = new FormData(); fd.append('user_id', targetUserId); return fd; })()
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: data.message,
+              confirmButtonColor: '#084018'
+            }).then(() => loadArchivedCoordinators());
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message || 'An error occurred.',
+              confirmButtonColor: '#d33'
+            });
+          }
+          closeConfirmModal();
+        })
+        .catch(() => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to delete coordinator.',
+            confirmButtonColor: '#d33'
+          });
+          closeConfirmModal();
+        });
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadArchivedCoordinators);
+
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    }
+  });
+
+  </script>
+</body>
+</html>

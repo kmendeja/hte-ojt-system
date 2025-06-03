@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin- View List of Trainee</title>
+  <!-- Add SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+  <!-- Add SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .header {
+      background-color: #0e6c38;
+      color: white;
+      padding: 15px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .container {
+      width: 90%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 1350px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      background-color: #0e6c38;
+      padding: 15px;
+      color: white;
+      align-items: center;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 2px solid gray;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 5px;
+      width: 100%;
+    }
+
+    .toolbar .buttons {
+  display: flex;
+  gap: 10px;
+  margin-right: 7px; /* Add spacing between button and dropdown */
+}
+.sort-dropdown {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid gray;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black"><polygon points="0,0 16,0 8,8"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+  height: 36px;
+  margin-left: 10px;
+}
+
+    .toolbar button {
+      background: #028a3d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .toolbar button:hover {
+      background-color: #dfd61e;
+    }
+
+    .search-btn img, .toolbar button img {
+      width: 16px;
+      height: 16px;
+    }
+
+
+    .section-filter {
+      margin-bottom: 20px;
+    }
+
+    .section-filter label {
+      font-weight: bold;
+      color: #0e6c38;
+      margin-right: 10px;
+    }
+
+    .section-filter select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed; /* Changed from auto to fixed */
+      margin-bottom: 20px;
+      overflow-x: auto; /* Enable horizontal scrolling if needed */
+    }
+
+    .table th, .table td {
+      padding: 12px 10px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      min-width: 100px;
+      text-align: center; /* Center align all table headers and cells */
+      vertical-align: middle; /* Vertically center content */
+    }
+
+    /* Specific column widths */
+    .table th:nth-child(1), 
+    .table td:nth-child(1) { /* No. column */
+      width: 50px;
+      min-width: 50px;
+    }
+
+    .table th:nth-child(2),
+    .table td:nth-child(2) { /* Profile column */
+      width: 80px;
+      min-width: 80px;
+    }
+
+    .table th:nth-child(3),
+    .table td:nth-child(3) { /* Student ID column */
+      width: 100px;
+      min-width: 100px;
+    }
+
+    .table th:nth-child(4),
+    .table td:nth-child(4) { /* Name column */
+      width: 180px;
+      min-width: 180px;
+    }
+
+    .table th:nth-child(5),
+    .table td:nth-child(5) { /* Program column */
+      width: 100px;
+      min-width: 100px;
+    }
+
+    .table th:nth-child(6),
+    .table td:nth-child(6) { /* Section column */
+      width: 80px;
+      min-width: 80px;
+    }
+
+    .table th:nth-child(7),
+    .table td:nth-child(7) { /* School Year column */
+      width: 100px;
+      min-width: 100px;
+    }
+
+    .table th:nth-child(8),
+    .table td:nth-child(8) { /* Contact Number column */
+      width: 120px;
+      min-width: 120px;
+    }
+
+    .table th:nth-child(9),
+    .table td:nth-child(9) { /* Email column */
+      width: 200px;
+      min-width: 200px;
+    }
+
+    .table th:nth-child(10),
+    .table td:nth-child(10) { /* Company Assigned column */
+      width: 150px;
+      min-width: 150px;
+    }
+
+    .table th:nth-child(11),
+    .table td:nth-child(11) { /* Nature of Work column */
+      width: 150px;
+      min-width: 150px;
+    }
+
+    .table th:nth-child(12),
+    .table td:nth-child(12) { /* Username column */
+      width: 200px;
+      min-width: 200px;
+    }
+
+    /* Add a container for the table with horizontal scroll */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .table th {
+      background-color: #028a3d;
+      color: white;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .table td {
+      background-color: #fff;
+      color: #000;
+    }
+
+    .menu {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .menu-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #028a3d;
+      min-width: 200px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .menu-content a {
+      color: white;
+      padding: 10px;
+      display: block;
+      text-decoration: none;
+    }
+
+    .menu-content a:hover {
+      background-color: #02602e;
+    }
+
+    .menu.active .menu-content {
+      display: block;
+    }
+
+    .dark-mode {
+     background-color: #292b40;
+     color: #f1f1f1;
+    }
+
+    /* Remove clickable styles */
+    .table tr {
+      cursor: default;
+    }
+
+    .dark-mode .table tr:hover {
+      background-color: inherit;
+    }
+
+    .table tr:hover {
+      background-color: inherit;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="header">TRAINEES</div>
+
+  <div class="container">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-container">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search for...">
+        </div>
+        <button class="search-btn" onclick="searchTable()">
+          <img src="icons/searchmag.png" alt="Search"> Search
+        </button>
+      </div>
+      <div class="buttons">
+        <button onclick="generateReport()">
+          <img src="icons/generate.png" alt="Generate"> GENERATE
+        </button>
+      </div>
+      <select class="sort-dropdown" onchange="onSortByProgram()">
+        <option value="" disabled selected>SORT BY...</option>
+        <option value="program">SORT BY PROGRAM</option>
+      </select>
+      <select id="programFilter" style="display:none; margin-left:10px;"></select>
+      <select id="sectionFilter" style="display:none; margin-left:10px;"></select>
+    </div>
+
+    <!-- Trainee Table -->
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Profile</th>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Program</th>
+            <th>Section</th>
+            <th>Contact Number</th>
+            <th>Email</th>
+            <th>Company Assigned</th>
+            <th>Nature of Work</th>
+            <th>Username</th>
+          </tr>
+        </thead>
+        <tbody id="traineeTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    // Store trainees data globally for normalization
+    let traineesData = [];
+    let lastFilteredData = []; // Add this to store last filtered data
+
+    // Load trainees from database
+    async function loadTrainees() {
+      try {
+        const response = await fetch('php/get_trainees.php');
+        const data = await response.json();
+        
+        if (data.success) {
+          traineesData = data.trainees; // Store for normalization
+          
+          // Populate program and section filters
+          const programSet = new Set(traineesData.map(t => t.program));
+          const sectionSet = new Set(traineesData.map(t => t.section));
+          const programFilter = document.getElementById('programFilter');
+          const sectionFilter = document.getElementById('sectionFilter');
+          programFilter.innerHTML = '<option value="">Select Program</option>' + 
+            Array.from(programSet).map(p => `<option value="${p}">${p}</option>`).join('');
+          sectionFilter.innerHTML = '<option value="">Select Section</option>' + 
+            Array.from(sectionSet).map(s => `<option value="${s}">${s}</option>`).join('');
+
+          renderFullTable(traineesData);
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load trainees: ' + data.message,
+            confirmButtonColor: '#0e6c38'
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred while loading trainees',
+          confirmButtonColor: '#0e6c38'
+        });
+      }
+    }
+
+    // Render full table (all columns)
+    function renderFullTable(data) {
+      const tableHead = document.querySelector('.table thead');
+      const tableBody = document.getElementById('traineeTableBody');
+      tableHead.innerHTML = `<tr>
+        <th>No.</th>
+        <th>Profile</th>
+        <th>Student ID</th>
+        <th>Name</th>
+        <th>Program</th>
+        <th>Section</th>
+        <th>Contact Number</th>
+        <th>Email</th>
+        <th>Company Assigned</th>
+        <th>Nature of Work</th>
+        <th>Username</th>
+      </tr>`;
+      tableBody.innerHTML = ''; // Clear existing rows
+      
+      data.forEach((trainee, index) => {
+        const row = document.createElement('tr');
+        
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><img src="${trainee.profile_image}" alt="Profile" style="width: 50px; height: 50px; border-radius: 50%;"></td>
+          <td>${trainee.trainee_id}</td>
+          <td>${trainee.full_name}</td>
+          <td>${trainee.program}</td>
+          <td>${trainee.section}</td>
+          <td>${trainee.contact_number}</td>
+          <td>${trainee.email}</td>
+          <td>${trainee.company_assigned}</td>
+          <td>${trainee.nature_of_work}</td>
+          <td>${trainee.username}</td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Sort functionality
+    function onSortByProgram() {
+      document.getElementById('programFilter').style.display = '';
+      document.getElementById('sectionFilter').style.display = 'none';
+    }
+
+    // Add event listeners for filters
+    document.addEventListener('DOMContentLoaded', function() {
+      loadTrainees();
+      document.getElementById('programFilter').addEventListener('change', function() {
+        const value = this.value;
+        if (value) {
+          // Populate sectionFilter based on selected program
+          const sections = Array.from(new Set(traineesData.filter(t => t.program === value).map(t => t.section)));
+          const sectionFilter = document.getElementById('sectionFilter');
+          sectionFilter.innerHTML = '<option value="">Select Section</option>' + sections.map(s => `<option value="${s}">${s}</option>`).join('');
+          sectionFilter.style.display = '';
+          renderFullTable(traineesData.filter(t => t.program === value));
+        } else {
+          document.getElementById('sectionFilter').style.display = 'none';
+          renderFullTable(traineesData);
+        }
+      });
+      document.getElementById('sectionFilter').addEventListener('change', function() {
+        const program = document.getElementById('programFilter').value;
+        const section = this.value;
+        if (section) {
+          renderFullTable(traineesData.filter(t => t.program === program && t.section === section));
+        } else {
+          renderFullTable(traineesData.filter(t => t.program === program));
+        }
+      });
+    });
+
+    // Search functionality
+    function searchTable() {
+      const searchInput = document.getElementById('searchInput');
+      const searchText = searchInput.value.toLowerCase();
+      const tableBody = document.getElementById('traineeTableBody');
+      const rows = tableBody.getElementsByTagName('tr');
+
+      for (let row of rows) {
+        const nameCell = row.getElementsByTagName('td')[3]; // Name is the 4th column
+        if (nameCell && nameCell.textContent.toLowerCase().includes(searchText)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      }
+    }
+
+    // Generate report functionality
+    async function generateReport() {
+      const table = document.querySelector(".table");
+      if (!table) {
+        Swal.fire('No data', 'There is no trainee data to export.', 'warning');
+        return;
+      }
+
+      // Get visible headers and rows from the DOM
+      const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+      const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr =>
+        Array.from(tr.querySelectorAll('td')).map(td => {
+          const img = td.querySelector('img');
+          if (img) {
+            return { imgElement: img };
+          }
+          return td.textContent.trim();
+        })
+      );
+
+      if (rows.length === 0) {
+        Swal.fire('No records', 'There are no trainees to export.', 'warning');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Export Trainee List',
+        html: `
+          <div style="margin-bottom:1rem;">
+            <label for="export-format" style="display:block;margin-bottom:0.5rem;">Select the format you want to export:</label>
+            <select id="export-format" class="swal2-input" style="width:100%;">
+              <option value="" selected disabled>Select format</option>
+              <option value="excel">Excel (.xlsx)</option>
+              <option value="pdf">PDF (.pdf)</option>
+            </select>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Export',
+        cancelButtonText: 'Cancel',
+        focusConfirm: false,
+        preConfirm: () => {
+          const format = document.getElementById('export-format').value;
+          if (!format) {
+            Swal.showValidationMessage('Please select a format');
+          }
+          return format;
+        },
+        customClass: {
+          popup: 'swal2-border-radius'
+        }
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const format = result.value;
+          if (format === "excel") {
+            // Prepare data for Excel (show image URL or alt text)
+            const data = rows.map(row => {
+              const obj = {};
+              headers.forEach((header, i) => {
+                if (typeof row[i] === 'object' && row[i].imgElement) {
+                  obj[header] = row[i].imgElement.src || '[Profile Image]';
+                } else {
+                  obj[header] = row[i];
+                }
+              });
+              return obj;
+            });
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Trainees");
+            XLSX.writeFile(wb, "trainees_report.xlsx");
+            Swal.fire({
+              toast: true,
+              position: 'bottom-end',
+              icon: 'success',
+              title: 'Excel downloaded!',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true
+            });
+          } else if (format === "pdf") {
+            try {
+              const { jsPDF } = window.jspdf;
+              const doc = new jsPDF('l', 'mm', 'a4');
+              doc.setFontSize(16);
+              doc.text("Trainee List", 14, 15);
+
+              const totalWidth = 297 - 28;
+              const proportions = Array(headers.length).fill(1);
+              const sum = proportions.reduce((a, b) => a + b, 0);
+              const colWidths = proportions.map(p => (p / sum) * totalWidth);
+
+              // Prepare body data with images
+              const imagePromises = rows.map(async (row) => {
+                return await Promise.all(row.map(async cell => {
+                  if (typeof cell === 'object' && cell.imgElement) {
+                    // Convert image to base64
+                    try {
+                      const img = cell.imgElement;
+                      const canvas = document.createElement('canvas');
+                      canvas.width = img.naturalWidth;
+                      canvas.height = img.naturalHeight;
+                      const ctx = canvas.getContext('2d');
+                      ctx.drawImage(img, 0, 0);
+                      return { image: canvas.toDataURL('image/png') };
+                    } catch (e) {
+                      return '';
+                    }
+                  }
+                  return cell;
+                }));
+              });
+              const bodyData = await Promise.all(imagePromises);
+
+              const imageSize = 14;
+              const minRowHeight = 16;
+
+              doc.autoTable({
+                startY: 20,
+                head: [headers],
+                body: bodyData,
+                styles: { fontSize: 9, cellPadding: 2 },
+                headStyles: { fillColor: [2, 138, 61], fontSize: 10, fontStyle: 'bold' },
+                columnStyles: Object.fromEntries(colWidths.map((w, i) => [i, { cellWidth: w }])),
+                margin: { left: 14, right: 14, top: 20 },
+                didParseCell: function(data) {
+                  if (data.section === 'body' && data.row.height < minRowHeight) {
+                    data.row.height = minRowHeight;
+                  }
+                  // Remove [object Object] text for profile
+                  if (data.section === 'body' && typeof data.cell.raw === 'object' && data.cell.raw && data.cell.raw.image) {
+                    data.cell.text = [''];
+                  }
+                },
+                didDrawCell: function(data) {
+                  // Draw image in profile column
+                  if (data.section === 'body' && typeof data.cell.raw === 'object' && data.cell.raw && data.cell.raw.image) {
+                    const img = data.cell.raw.image;
+                    const x = data.cell.x + (data.cell.width - imageSize) / 2;
+                    const y = data.cell.y + (data.cell.height - imageSize) / 2;
+                    try {
+                      doc.addImage(img, 'PNG', x, y, imageSize, imageSize);
+                    } catch (e) {
+                      // If image fails, just skip
+                    }
+                  }
+                }
+              });
+
+              doc.save("trainees_report.pdf");
+              Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                icon: 'success',
+                title: 'PDF downloaded!',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true
+              });
+            } catch (err) {
+              console.error('PDF export failed:', err);
+              Swal.fire({
+                icon: 'error',
+                title: 'PDF Export Failed',
+                text: err.message || 'An error occurred during PDF export.',
+                confirmButtonColor: '#028a3d'
+              });
+            }
+          }
+        }
+      });
+    }
+
+    // Dark mode functionality
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+    });
+
+    // Load trainees when page loads
+    document.addEventListener('DOMContentLoaded', loadTrainees);
+  </script>
+</body>
+</html>
+

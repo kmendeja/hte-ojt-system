@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>List of Company</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Add SheetJS (XLSX) -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <!-- Add jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+    body.no-scroll {
+      overflow: hidden;
+    }
+    .header {
+      background-color: #0e6c38;
+      color: white;
+      padding: 15px;
+      font-size: 24px;
+      text-align: center;
+    }
+    .container {
+      width: 95%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 1500px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      background-color: #0e6c38;
+      padding: 15px;
+      color: white;
+      align-items: center;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+    .toolbar .buttons {
+  display: flex;
+  gap: 10px;
+  margin-right: 7px; /* Add spacing between button and dropdown */
+}
+.sort-dropdown {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid gray;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black"><polygon points="0,0 16,0 8,8"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+  height: 36px;
+  margin-left: 10px;
+}
+    .toolbar button {
+      background: #028a3d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .toolbar button img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .toolbar button:hover {
+      background-color: #dfd61e;
+    }
+    
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 2px solid gray;
+      width: 100%;
+      max-width: 400px;
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 5px;
+      width: 100%;
+    }
+    .search-btn {
+      background: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .search-btn img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .table {
+      width: 98%;
+      margin: 0 auto;
+      border-collapse: separate;
+      border-spacing: 0 4px;
+      table-layout: fixed;
+    }
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 0.9em;
+      line-height: 1.4;
+      vertical-align: middle;
+    }
+    .table th {
+      background-color: #028a3d;
+      color: white;
+      font-weight: 600;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .table th:last-child {
+      border-right: 1px solid #ddd;
+    }
+
+    .table td {
+      background-color: #ffffff;
+      word-wrap: break-word;
+      max-width: 100%;
+    }
+
+    /* Column width adjustments */
+    .table th:nth-child(1), /* No. */
+    .table td:nth-child(1) {
+      width: 40px;
+    }
+    .table th:nth-child(2), /* Effective Date */
+    .table td:nth-child(2) {
+      width: 90px;
+    }
+    .table th:nth-child(3), /* Logo */
+    .table td:nth-child(3) {
+      width: 60px;
+    }
+    .table th:nth-child(4), /* Corporate Name */
+    .table td:nth-child(4) {
+      width: 140px;
+    }
+    .table th:nth-child(5), /* Address */
+    .table td:nth-child(5) {
+      width: 180px;
+    }
+    .table th:nth-child(6), /* Corporate Email */
+    .table td:nth-child(6) {
+      width: 160px;
+    }
+    .table th:nth-child(7), /* Corporate Contact Number */
+    .table td:nth-child(7) {
+      width: 120px;
+    }
+    .table th:nth-child(8), /* Contact Person */
+    .table td:nth-child(8) {
+      width: 120px;
+    }
+    .table th:nth-child(9), /* Position */
+    .table td:nth-child(9) {
+      width: 100px;
+    }
+    .table th:nth-child(10), /* Contact Number */
+    .table td:nth-child(10) {
+      width: 100px;
+    }
+    .table th:nth-child(11), /* Email */
+    .table td:nth-child(11) {
+      width: 160px;
+    }
+
+    /* Logo image sizing */
+    .table td img {
+      max-width: 35px;
+      max-height: 35px;
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
+    /* Hover effect for long content */
+    .table td {
+      position: relative;
+    }
+    .table td:hover {
+      z-index: 1;
+    }
+    .table td:hover span {
+      position: absolute;
+      background-color: #fff;
+      padding: 5px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: normal;
+      min-width: 100%;
+      z-index: 2;
+    }
+
+    /* Add wrapper for text content */
+    .cell-content {
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .menu {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .menu-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #028a3d;
+      min-width: 100px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      text-align: center;
+      z-index: 10;
+    }
+    .menu-content a {
+      color: white;
+      padding: 10px;
+      display: block;
+      text-decoration: none;
+    }
+    .menu-content a:hover {
+      background-color: #02602e;
+    }
+    .menu.active .menu-content {
+      display: block;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal-content h2 {
+      margin-bottom: 20px;
+      color: #0e6c38;
+    }
+    .csvBtn, .confirm-btn {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .csvBtn, .confirm-btn {
+      background-color: #0e6c38;
+      color: white;
+    }
+
+
+    #addCompanyModal .modal-content {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 1000px;
+      box-shadow: none;
+      position: relative;
+      overflow: visible;
+    }
+
+    #editCompanyModal .modal-content {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 1000px;
+      box-shadow: none;
+      position: relative;
+      overflow: visible;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 40px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    /* Specific style for close button inside modal box */
+.modal-content.option-modal {
+  position: relative;
+}
+
+.close-btn.inside {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  background: none;
+  border: none;
+  color: #0e6c38;
+  cursor: pointer;
+}
+
+.dark-mode {
+    background-color: #292b40;
+    color: #f1f1f1;
+}
+
+body.dark-mode table, body.dark-mode th, body.dark-mode td,
+body.light-mode table, body.light-mode th, body.light-mode td {
+  color: #000 !important;
+}
+
+    /* Add styles for the export modal */
+    .export-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      width: 400px;
+      display: none;
+    }
+
+    .export-modal h2 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .export-modal select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+    }
+
+    .export-modal .select-wrapper {
+      position: relative;
+      margin-top: 20px;
+    }
+
+    .export-modal .select-wrapper::after {
+      content: '';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: solid #666;
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="header">CORPORATE PARTNERS</div>
+  <div class="container">
+    <div class="toolbar">
+      <div class="search-container">
+        <div class="search-bar">
+          <input type="text" placeholder="Search for...">
+        </div>
+        <button class="search-btn">
+          <img src="icons/searchmag.png" alt="Search"> Search
+        </button>
+      </div>
+      <div class="buttons">
+        <button>
+          <img src="icons/generate.png" alt="Generate"> GENERATE
+        </button>
+      </div>
+      <select class="sort-dropdown">
+        <option value="" disabled selected>SORT BY...</option>
+        <option value="ascending">SORT BY COMPANY NAME (A-Z)</option>
+        <option value="descending">SORT BY COMPANY NAME (Z-A)</option>
+    </select>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Effective Date</th>
+          <th>Logo</th>
+          <th>Corporate Name</th>
+          <th>Address</th>
+          <th>Corporate Email</th>
+          <th>Corporate Contact Number</th>
+          <th>Contact Person</th>
+          <th>Position</th>
+          <th>Contact Number</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Date</td>
+          <td>Sample Logo</td>
+          <td>Sample Company</td>
+          <td>Sample Address</td>
+          <td>company@sample.com</td>
+          <td>123-456-904</td>
+          <td>Contact A</td>
+          <td>HR</td>
+          <td>0919-225-4567</td>
+          <td>trainee@sample.com</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Option Modal (CSV or Manual) -->
+<div id="modalOverlay" class="modal-overlay">
+    <div class="modal-content option-modal">
+      <button class="close-btn inside" onclick="closeOptionModal()">×</button>
+      <h2>Please select an option</h2>
+      <button class="csvBtn" onclick="uploadCSV()">Upload CSV File</button>
+      <button class="confirm-btn" onclick="goToAddManually()">Add Manually</button>
+      <button class="confirm-btn" onclick="edit()">Edit Existing</button>
+    </div>
+  </div>
+  
+  
+
+  <!-- Add Trainee Modal -->
+  <div id="addCompanyModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">×</button>
+      <iframe src="admin_AddCompany.html" width="103%" height="550px" style="border: none; border-radius: 10px;"></iframe>
+    </div>
+  </div>
+
+  <!-- Edit Trainee Modal (same structure as Add Trainee) -->
+<div id="editCompanyModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">×</button>
+      <iframe src="admin_EditCompany.html" width="103%" height="550px" style="border: none; border-radius: 10px;"></iframe>
+    </div>
+  </div>
+  
+
+  <!-- Export Modal -->
+  <div class="modal-overlay" id="exportOverlay">
+    <div class="export-modal">
+      <h2>Export Company List</h2>
+      <p style="text-align: center; margin-bottom: 20px;">Select the format you want to export</p>
+      <div class="select-wrapper">
+        <select id="exportFormat">
+          <option value="" disabled selected>Select format</option>
+          <option value="excel">Excel (.xlsx)</option>
+          <option value="pdf">PDF (.pdf)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function disableBackgroundScroll() {
+      document.body.classList.add('no-scroll');
+    }
+    function enableBackgroundScroll() {
+      document.body.classList.remove('no-scroll');
+    }
+
+    // Function to load companies
+    function loadCompanies(searchTerm = '', sortOrder = '') {
+      fetch(`php/company_operations.php?action=getCompanies&search=${encodeURIComponent(searchTerm)}&sort=${encodeURIComponent(sortOrder)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            const tbody = document.querySelector('.table tbody');
+            tbody.innerHTML = '';
+            
+            if (data.data.length === 0) {
+              tbody.innerHTML = `
+                <tr>
+                  <td colspan="11" style="text-align: center; padding: 20px;">
+                    <p style="margin: 0; color: #c0392b; font-weight: bold; font-size: 1.2em;">No companies found. This could be because:</p>
+                    <ul style="text-align: left; display: inline-block; margin: 10px 0;">
+                      <li style='font-style: italic;'>No trainees from your assigned sections have been deployed to any companies yet</li>
+                      <li style='font-style: italic;'>No sections have been assigned to you yet</li>
+                    </ul>
+                  </td>
+                </tr>
+              `;
+              return;
+            }
+            
+            data.data.forEach((company, index) => {
+              const row = `
+                <tr>
+                  <td><span class="cell-content">${index + 1}</span></td>
+                  <td><span class="cell-content">${company.effective_date || 'N/A'}</span></td>
+                  <td>${company.logo ? `<img src="${company.logo}" alt="Company Logo">` : 'No Logo'}</td>
+                  <td><span class="cell-content">${company.name}</span></td>
+                  <td><span class="cell-content">${company.address}</span></td>
+                  <td><span class="cell-content">${company.corporate_email}</span></td>
+                  <td><span class="cell-content">${company.corporate_contact}</span></td>
+                  <td><span class="cell-content">${company.contact_person}</span></td>
+                  <td><span class="cell-content">${company.position}</span></td>
+                  <td><span class="cell-content">${company.contact_number}</span></td>
+                  <td><span class="cell-content">${company.email}</span></td>
+                </tr>
+              `;
+              tbody.innerHTML += row;
+            });
+          } else {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Failed to load companies',
+              icon: 'error',
+              confirmButtonColor: '#0e6c38'
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while loading companies',
+            icon: 'error',
+            confirmButtonColor: '#0e6c38'
+          });
+        });
+    }
+
+    // Search functionality
+    const searchInput = document.querySelector('.search-bar input');
+    const searchBtn = document.querySelector('.search-btn');
+    
+    searchBtn.addEventListener('click', () => {
+      loadCompanies(searchInput.value);
+    });
+
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        loadCompanies(searchInput.value);
+      }
+    });
+
+    // Sort functionality
+    const sortDropdown = document.querySelector('.sort-dropdown');
+    sortDropdown.addEventListener('change', () => {
+      loadCompanies(searchInput.value, sortDropdown.value);
+    });
+
+    // Generate Report functionality
+    document.querySelector('.buttons button').addEventListener('click', () => {
+      document.getElementById('exportOverlay').style.display = 'block';
+      document.querySelector('.export-modal').style.display = 'block';
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('exportOverlay').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('exportOverlay')) {
+        document.getElementById('exportOverlay').style.display = 'none';
+        document.querySelector('.export-modal').style.display = 'none';
+      }
+    });
+
+    // Handle format selection
+    document.getElementById('exportFormat').addEventListener('change', (e) => {
+      const format = e.target.value;
+      
+      fetch('php/company_operations.php?action=generateReport')
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            if (format === 'excel') {
+              // Generate Excel
+              const wb = XLSX.utils.book_new();
+              const wsData = data.data.map(company => ({
+                'Company Name': company.name,
+                'Effective Date': company.effective_date,
+                'Address': company.address,
+                'Corporate Email': company.corporate_email,
+                'Corporate Contact': company.corporate_contact,
+                'Contact Person': company.contact_person,
+                'Position': company.position,
+                'Contact Number': company.contact_number,
+                'Email': company.email
+              }));
+              const ws = XLSX.utils.json_to_sheet(wsData);
+              XLSX.utils.book_append_sheet(wb, ws, 'Companies');
+              XLSX.writeFile(wb, 'companies_report.xlsx');
+            } else if (format === 'pdf') {
+              // Generate PDF
+              const doc = new window.jspdf.jsPDF();
+              doc.setFontSize(16);
+              doc.text('Company Report', 20, 20);
+              
+              let yPos = 40;
+              data.data.forEach((company, index) => {
+                if (yPos > 250) {
+                  doc.addPage();
+                  yPos = 20;
+                }
+                doc.setFontSize(12);
+                doc.text(`${index + 1}. ${company.name}`, 20, yPos);
+                yPos += 10;
+                doc.setFontSize(10);
+                doc.text(`Address: ${company.address}`, 25, yPos);
+                yPos += 7;
+                doc.text(`Contact: ${company.corporate_contact}`, 25, yPos);
+                yPos += 7;
+                doc.text(`Email: ${company.corporate_email}`, 25, yPos);
+                yPos += 15;
+              });
+              doc.save('companies_report.pdf');
+            }
+            
+            // Close modal after export
+            document.getElementById('exportOverlay').style.display = 'none';
+            document.querySelector('.export-modal').style.display = 'none';
+            
+            // Show success message
+            Swal.fire({
+              title: 'Success!',
+              text: 'Report generated successfully!',
+              icon: 'success',
+              confirmButtonColor: '#0e6c38'
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            title: 'Error!',
+            text: 'Failed to generate report',
+            icon: 'error',
+            confirmButtonColor: '#0e6c38'
+          });
+        });
+    });
+
+    // Load companies when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCompanies();
+    });
+
+    function openOptionModal() {
+      document.getElementById('modalOverlay').style.display = 'flex';
+      disableBackgroundScroll();
+    }
+
+    function uploadCSV() {
+      // Create an input element to allow CSV file upload
+      let inputFile = document.createElement('input');
+      inputFile.type = 'file';
+      inputFile.accept = '.csv'; // Only allow CSV files
+      inputFile.onchange = function(event) {
+        let file = event.target.files[0];
+        if (file) {
+          // Handle the CSV file upload logic here
+          alert('CSV file ready for upload: ' + file.name);
+        }
+      };
+      inputFile.click();  // Trigger the file input dialog
+    }
+
+    function goToAddManually() {
+      document.getElementById("modalOverlay").style.display = "none";
+      document.getElementById("addCompanyModal").style.display = "flex";
+    }
+
+    function edit() {
+      document.getElementById("modalOverlay").style.display = "none";
+      document.getElementById("editCompanyModal").style.display = "flex";
+    }
+
+    function closeOptionModal() {
+  document.getElementById("modalOverlay").style.display = "none";
+  enableBackgroundScroll();
+}
+
+function closeModal() {
+  document.getElementById("addCompanyModal").style.display = "none";
+  document.getElementById("editCompanyModal").style.display = "none";
+  enableBackgroundScroll();
+}
+
+
+    function toggleMenu(menuElem) {
+      menuElem.parentElement.classList.toggle("active");
+    }
+
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    }
+  });
+
+  // Add animate.css for SweetAlert2 animations
+  const animateCSSLink = document.createElement('link');
+  animateCSSLink.rel = 'stylesheet';
+  animateCSSLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+  document.head.appendChild(animateCSSLink);
+
+  // Add custom styles for SweetAlert2
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+    .swal2-popup {
+      border-radius: 15px !important;
+      padding: 2em !important;
+    }
+    .swal2-title {
+      color: #0e6c38 !important;
+      font-size: 1.5em !important;
+    }
+    .swal2-content {
+      color: #333 !important;
+    }
+    .swal2-confirm {
+      padding: 12px 25px !important;
+      font-size: 1em !important;
+      border-radius: 8px !important;
+    }
+    .swal2-cancel {
+      padding: 12px 25px !important;
+      font-size: 1em !important;
+      border-radius: 8px !important;
+    }
+  `;
+  document.head.appendChild(styleSheet);
+
+  </script>
+</body>
+</html>

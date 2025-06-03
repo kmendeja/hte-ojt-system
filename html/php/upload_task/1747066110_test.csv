@@ -1,0 +1,4 @@
+name,effective_date,logo,address,corporate_email,corporate_contact,contact_person,position,contact_number,email,documents
+Acme Corporation,2025-05-11,,123 Main St,acme@example.com,1234567890,John Doe,Manager,0987654321,john.doe@acme.com,
+Beta Solutions,2025-06-01,,456 Beta Ave,beta@solutions.com,2345678901,Jane Smith,Director,1231231234,jane.smith@beta.com,
+Gamma Industries,2025-07-15,,789 Gamma Rd,gamma@industries.com,3456789012,Bob Brown,CEO,3213214321,bob.brown@gamma.com,

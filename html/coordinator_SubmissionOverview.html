@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submission Overview</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .header {
+      background-color: #0e6c38;
+      color: white;
+      padding: 15px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .container {
+      width: 90%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 1350px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      background-color: #0e6c38;
+      padding: 15px;
+      color: white;
+      align-items: center;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    .toolbar .buttons {
+      display: flex;
+      gap: 10px;
+      margin-right: 7px;
+    }
+
+    .sort-dropdown {
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid gray;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black"><polygon points="0,0 16,0 8,8"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 12px;
+      padding-right: 2.5rem;
+      height: 36px;
+      margin-left: 10px;
+    }
+
+    .toolbar button:hover {
+      background-color: #dfd61e;
+    }
+
+    .toolbar button {
+      background: #028a3d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .toolbar button img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 2px solid gray;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 5px;
+      width: 100%;
+    }
+
+    .search-btn {
+      background: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .search-btn img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .table th {
+      background-color: #028a3d;
+      color: white;
+      position: relative;
+    }
+
+    .clickable-row {
+      cursor: pointer;
+    }
+
+    .clickable-row:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Status styles */
+    .status-complete {
+      background-color: #d4edda;
+      color: #155724;
+      font-weight: bold;
+    }
+
+    .status-incomplete {
+      background-color: #f8d7da;
+      color: #721c24;
+      font-weight: bold;
+    }
+
+    .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+      font-weight: bold;
+    }
+
+    .status-in.progress {
+      background-color: #cce5ff;
+      color: #004085;
+      font-weight: bold;
+    }
+
+    .status-not.started {
+      background-color: #e2e3e5;
+      color: #383d41;
+      font-weight: bold;
+    }
+
+    td small {
+      display: block;
+      font-size: 0.8em;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+
+    .dark-mode {
+      background-color: #292b40;
+      color: #f1f1f1;
+    }
+
+    body.dark-mode table, body-dark-mode th, body-dark-mode td,
+    body.light-mode table, body-light-mode th, body-light-mode td {
+      color: #000 !important;
+    }
+
+    .swal2-popup {
+      font-size: 0.9rem !important;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    /* Export Modal Styling */
+    #exportModal .modal-content {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      padding: 32px 32px 24px 32px;
+      text-align: center;
+      max-width: 400px;
+      width: 95%;
+      position: relative;
+      margin: 0 auto;
+    }
+    #exportModal h2 {
+      color: #0e6c38;
+      font-size: 2rem;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    #exportModal p {
+      color: #444;
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+    }
+    #exportModal select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #bdbdbd;
+      font-size: 1rem;
+      margin-bottom: 22px;
+      background: #f8f9fa;
+      outline: none;
+      transition: border 0.2s;
+    }
+    #exportModal select:focus {
+      border: 1.5px solid #0e6c38;
+    }
+    #exportModal .csvBtn {
+      width: 100%;
+      background: #0e6c38;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 0;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 0;
+      margin-bottom: 0;
+      transition: background 0.2s;
+    }
+    #exportModal .csvBtn:hover {
+      background: #028a3d;
+    }
+    #exportModal .close-btn.inside {
+      color: #0e6c38;
+      font-size: 32px;
+      position: absolute;
+      top: 10px;
+      right: 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    #exportModal .close-btn.inside:hover {
+      color: #dfd61e;
+    }
+    #exportModal .modal-content select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%230e6c38"><polygon points="0,0 16,0 8,8"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+    }
+    #exportModal .modal-content {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    }
+    #exportModal {
+      z-index: 2000;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <div class="header">SUBMISSION OVERVIEW</div>
+  <div class="container">
+    <div class="toolbar">
+      <div class="search-container">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search by name, ID, or requirement type...">
+        </div>
+        <button class="search-btn" onclick="searchTable()">
+          <img src="icons/searchmag.png" alt="Search"> Search
+        </button>
+      </div>
+      <div class="buttons">
+        <!-- Generate button removed as requested -->
+      </div>
+      <select class="sort-dropdown" onchange="onSortByProgram()">
+        <option value="" disabled selected>SORT BY...</option>
+        <option value="program">SORT BY PROGRAM</option>
+      </select>
+      <select id="programFilter" style="display:none; margin-left:10px;"></select>
+      <select id="sectionFilter" style="display:none; margin-left:10px;"></select>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Profile</th>
+          <th>Student ID</th>
+          <th>Name</th>
+          <th>Program</th>
+          <th>Section</th>
+          <th>Contact Number</th>
+          <th>Email</th>
+          <th>Pre-Requirements</th>
+          <th>Post-Requirements</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Table data will be populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let trainees = [];
+    let lastFilteredData = [];
+
+    // Load trainees on page load and every 30 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Page loaded, fetching trainee data...'); // Debug log
+      loadTrainees();
+      // Add filter listeners
+      document.getElementById('programFilter').addEventListener('change', function() {
+        const value = this.value;
+        if (value) {
+          // Populate sectionFilter based on selected program
+          const sections = Array.from(new Set(trainees.filter(t => t.program === value).map(t => t.section)));
+          const sectionFilter = document.getElementById('sectionFilter');
+          sectionFilter.innerHTML = '<option value="">Select Section</option>' + sections.map(s => `<option value="${s}">${s}</option>`).join('');
+          sectionFilter.style.display = '';
+          renderTable(trainees.filter(t => t.program === value));
+        } else {
+          document.getElementById('sectionFilter').style.display = 'none';
+          renderTable(trainees);
+        }
+      });
+      document.getElementById('sectionFilter').addEventListener('change', function() {
+        const program = document.getElementById('programFilter').value;
+        const section = this.value;
+        if (section) {
+          renderTable(trainees.filter(t => t.program === program && t.section === section));
+        } else {
+          renderTable(trainees.filter(t => t.program === program));
+        }
+      });
+    });
+
+    function loadTrainees(sortBy = '') {
+      fetch(`php/get_trainee_requirements.php${sortBy ? '?sort_by=' + sortBy : ''}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(text => {
+          console.log('Raw server response:', text); // Debug log
+          
+          // Check if response is empty
+          if (!text.trim()) {
+            throw new Error('Empty response from server');
+          }
+          
+          try {
+            const data = JSON.parse(text);
+            console.log('Parsed data:', data); // Debug log
+            
+            if (data.success) {
+              if (!Array.isArray(data.data)) {
+                throw new Error('Server returned invalid data format');
+              }
+              
+              trainees = data.data;
+              // Populate program and section filters
+              const programSet = new Set(trainees.map(t => t.program));
+              const sectionSet = new Set(trainees.map(t => t.section));
+              const programFilter = document.getElementById('programFilter');
+              const sectionFilter = document.getElementById('sectionFilter');
+              programFilter.innerHTML = '<option value="">Select Program</option>' + 
+                Array.from(programSet).map(p => `<option value="${p}">${p}</option>`).join('');
+              sectionFilter.innerHTML = '<option value="">Select Section</option>' + 
+                Array.from(sectionSet).map(s => `<option value="${s}">${s}</option>`).join('');
+              console.log('Loaded trainees:', trainees); // Debug log
+              renderTable();
+            } else {
+              throw new Error(data.message || 'Failed to load trainee data');
+            }
+          } catch (e) {
+            console.error('Error processing response:', e);
+            console.error('Raw response:', text);
+            throw new Error('Failed to process server response: ' + e.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error Loading Data',
+            text: error.message || 'Failed to load trainee data',
+            footer: 'Please try refreshing the page. If the problem persists, contact support.'
+          });
+        });
+    }
+
+    function getRequirementStatus(requirements) {
+      if (!Array.isArray(requirements) || requirements.length === 0) {
+        return 'Not Started';
+      }
+
+      const totalRequirements = requirements.length;
+      const submittedCount = requirements.filter(req => req.status !== 'Not Submitted').length;
+      const approvedCount = requirements.filter(req => req.status === 'Approved').length;
+      const rejectedCount = requirements.filter(req => req.status === 'Rejected').length;
+      const pendingCount = requirements.filter(req => req.status === 'Pending').length;
+
+      if (submittedCount === 0) {
+        return 'Not Started';
+      }
+
+      if (approvedCount === totalRequirements) {
+        return 'Complete';
+      }
+
+      if (rejectedCount > 0) {
+        return `${rejectedCount} Rejected`;
+      }
+
+      if (pendingCount > 0) {
+        return `${pendingCount} Pending`;
+      }
+
+      return `${submittedCount}/${totalRequirements} Submitted`;
+    }
+
+    function getRequirementDetails(requirements) {
+      if (!Array.isArray(requirements) || requirements.length === 0) {
+        return '';
+      }
+
+      const totalRequirements = requirements.length;
+      const submittedCount = requirements.filter(req => req.status !== 'Not Submitted').length;
+      const approvedCount = requirements.filter(req => req.status === 'Approved').length;
+      const rejectedCount = requirements.filter(req => req.status === 'Rejected').length;
+      const pendingCount = requirements.filter(req => req.status === 'Pending').length;
+      const notSubmittedCount = requirements.filter(req => req.status === 'Not Submitted').length;
+
+      return `
+        <div class="requirement-details">
+          <small>
+            Total: ${totalRequirements}<br>
+            Not Submitted: ${notSubmittedCount}<br>
+            Submitted: ${submittedCount}<br>
+            Approved: ${approvedCount}<br>
+            Pending: ${pendingCount}<br>
+            Rejected: ${rejectedCount}
+          </small>
+        </div>
+      `;
+    }
+
+    function renderTable() {
+      console.log('Starting table render...'); // Debug log
+      const tableHead = document.querySelector('.table thead');
+      const tbody = document.getElementById('tableBody');
+      tableHead.innerHTML = `<tr>
+        <th>No.</th>
+        <th>Profile</th>
+        <th>Student ID</th>
+        <th>Name</th>
+        <th>Program</th>
+        <th>Section</th>
+        <th>Contact Number</th>
+        <th>Email</th>
+        <th>Pre-Requirements</th>
+        <th>Post-Requirements</th>
+      </tr>`;
+      if (!tbody) {
+        console.error('Table body element not found!');
+        return;
+      }
+      tbody.innerHTML = '';
+
+      if (!Array.isArray(trainees)) {
+        console.error('Invalid trainees data:', trainees);
+        return;
+      }
+
+      console.log(`Rendering ${trainees.length} trainees...`); // Debug log
+      lastFilteredData = trainees;
+      trainees.forEach((trainee, index) => {
+        console.log(`Rendering trainee ${index + 1}:`, trainee); // Debug log
+        
+        const row = document.createElement('tr');
+        // row.className = 'clickable-row';
+        // row.onclick = () => viewSubmissionHistory(trainee.trainee_id);
+
+        // Validate requirements data
+        trainee.pre_requirements = Array.isArray(trainee.pre_requirements) ? trainee.pre_requirements : [];
+        trainee.post_requirements = Array.isArray(trainee.post_requirements) ? trainee.post_requirements : [];
+
+        const preReqStatus = getRequirementStatus(trainee.pre_requirements);
+        const visiblePostReqs = trainee.post_requirements.filter(req => req.status !== 'Not Submitted');
+        const postReqStatus = getRequirementStatus(trainee.post_requirements);
+
+        // Add status classes for styling
+        const preReqClass = `status-${preReqStatus.toLowerCase().replace(/\s+/g, '-')}`;
+        const postReqClass = `status-${postReqStatus.toLowerCase().replace(/\s+/g, '-')}`;
+
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>
+            <img src="${trainee.profile_image || 'icons/default_profile.png'}" alt="Profile" 
+                 style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
+                        border: 2px solid #0e6c38; background-color: #fff;">
+          </td>
+          <td>${trainee.trainee_id || 'N/A'}</td>
+          <td>${trainee.full_name || 'N/A'}</td>
+          <td>${trainee.program || 'N/A'}</td>
+          <td>${trainee.section || 'N/A'}</td>
+          <td>${trainee.contact_number || 'N/A'}</td>
+          <td>${trainee.email || 'N/A'}</td>
+          <td class="${preReqClass}">
+            ${preReqStatus === 'Complete'
+              ? `<span style="text-decoration:underline;cursor:pointer;color:inherit;" onclick="Swal.fire('Pre-requirements are completed.')">${preReqStatus}${getRequirementDetails(trainee.pre_requirements)}</span>`
+              : `<a href="coordinator_SubmissionOverviewHistory.html?trainee_id=${trainee.trainee_id}&type=pre" style="text-decoration:underline;cursor:pointer;color:inherit;">
+                  ${preReqStatus}
+                  ${getRequirementDetails(trainee.pre_requirements)}
+                </a>`
+            }
+          </td>
+          <td class="${postReqClass}">
+            ${postReqStatus === 'Complete'
+              ? `<span style="text-decoration:underline;cursor:pointer;color:inherit;" onclick="Swal.fire('Post-requirements are completed.')">${postReqStatus}${getRequirementDetails(trainee.post_requirements)}</span>`
+              : `<a href="coordinator_SubmissionOverviewHistory.html?trainee_id=${trainee.trainee_id}&type=post" style="text-decoration:underline;cursor:pointer;color:inherit;">
+                  ${postReqStatus}
+                  ${getRequirementDetails(trainee.post_requirements)}
+                </a>`
+            }
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+      
+      console.log('Table render complete!'); // Debug log
+    }
+
+    function searchTable() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const filteredTrainees = trainees.filter(trainee => 
+        trainee.full_name.toLowerCase().includes(searchTerm)
+      );
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      filteredTrainees.forEach((trainee, index) => {
+        const row = document.createElement('tr');
+        // row.className = 'clickable-row';
+        // row.onclick = () => viewSubmissionHistory(trainee.trainee_id);
+
+        const preReqStatus = getRequirementStatus(trainee.pre_requirements);
+        const visiblePostReqs = trainee.post_requirements.filter(req => req.status !== 'Not Submitted');
+        const postReqStatus = getRequirementStatus(trainee.post_requirements);
+        const preReqClass = `status-${preReqStatus.toLowerCase().replace(/\s+/g, '-')}`;
+        const postReqClass = `status-${postReqStatus.toLowerCase().replace(/\s+/g, '-')}`;
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>
+            <img src="${trainee.profile_image || 'icons/default_profile.png'}" alt="Profile" 
+                 style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
+                        border: 2px solid #0e6c38; background-color: #fff;">
+          </td>
+          <td>${trainee.trainee_id || 'N/A'}</td>
+          <td>${trainee.full_name || 'N/A'}</td>
+          <td>${trainee.program || 'N/A'}</td>
+          <td>${trainee.section || 'N/A'}</td>
+          <td>${trainee.contact_number || 'N/A'}</td>
+          <td>${trainee.email || 'N/A'}</td>
+          <td class="${preReqClass}">
+            ${preReqStatus === 'Complete'
+              ? `<span style="text-decoration:underline;cursor:pointer;color:inherit;" onclick="Swal.fire('Pre-requirements are completed.')">${preReqStatus}${getRequirementDetails(trainee.pre_requirements)}</span>`
+              : `<a href="coordinator_SubmissionOverviewHistory.html?trainee_id=${trainee.trainee_id}&type=pre" style="text-decoration:underline;cursor:pointer;color:inherit;">
+                  ${preReqStatus}
+                  ${getRequirementDetails(trainee.pre_requirements)}
+                </a>`
+            }
+          </td>
+          <td class="${postReqClass}">
+            ${postReqStatus === 'Complete'
+              ? `<span style="text-decoration:underline;cursor:pointer;color:inherit;" onclick="Swal.fire('Post-requirements are completed.')">${postReqStatus}${getRequirementDetails(trainee.post_requirements)}</span>`
+              : `<a href="coordinator_SubmissionOverviewHistory.html?trainee_id=${trainee.trainee_id}&type=post" style="text-decoration:underline;cursor:pointer;color:inherit;">
+                  ${postReqStatus}
+                  ${getRequirementDetails(trainee.post_requirements)}
+                </a>`
+            }
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function onSortByProgram() {
+      document.getElementById('programFilter').style.display = '';
+      document.getElementById('sectionFilter').style.display = 'none';
+    }
+
+    function viewSubmissionHistory(traineeId) {
+      window.location.href = `coordinator_SubmissionOverviewHistory.html?trainee_id=${traineeId}`;
+    }
+
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

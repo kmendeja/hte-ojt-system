@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submission History</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      display: flex;
+      background-color: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      margin-left: 150px;
+      margin-top: -50px;
+      padding: 30px;
+      width: calc(100% - 250px);
+    }
+
+    .header {
+      margin-bottom: 30px;
+    }
+
+    .header h2 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .welcome-banner {
+      background-color: #0e6c38;
+      color: white;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 30px;
+    }
+
+    .welcome-banner h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .student-info {
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .student-info h3 {
+      color: #0e6c38;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .info-item {
+      margin-bottom: 10px;
+    }
+
+    .info-item strong {
+      display: block;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    .requirements-section {
+      background-color: white;
+      padding: 25px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .requirements-section h3 {
+      color: #0e6c38;
+      margin-bottom: 20px;
+      font-size: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #0e6c38;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .status-approved {
+      color: #0e6c38;
+      font-weight: bold;
+    }
+
+    .status-pending {
+      color: #ffc107;
+      font-weight: bold;
+    }
+
+    .status-revision {
+      color: #fd7e14;
+      font-weight: bold;
+    }
+
+    .status-rejected {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    .btn-blue {
+      background-color: #0e6c38;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-blue:hover {
+      background-color: #dfd61e;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: #ffffff;
+      margin: 5% auto;
+      padding: 30px;
+      border: none;
+      width: 40%;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .modal-title {
+      color: #0e6c38;
+      margin-bottom: 25px;
+      font-size: 1.5em;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .status-options {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .status-option {
+      flex: 1;
+    }
+
+    .status-option input[type="radio"] {
+      display: none;
+    }
+
+    .status-option label {
+      display: block;
+      padding: 12px;
+      text-align: center;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+
+    .status-option input[type="radio"]:checked + label {
+      background-color: #0e6c38;
+      color: white;
+      border-color: #0e6c38;
+    }
+
+    #statusApproved + label {
+      color: #0e6c38;
+    }
+
+    #statusRejected + label {
+      color: #dc3545;
+    }
+
+    #statusApproved:checked + label {
+      background-color: #0e6c38;
+      border-color: #0e6c38;
+    }
+
+    #statusRejected:checked + label {
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #0e6c38;
+      font-weight: bold;
+    }
+
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      resize: vertical;
+      min-height: 120px;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #0e6c38;
+    }
+
+    .modal-footer {
+      text-align: right;
+      margin-top: 25px;
+    }
+
+    .btn-submit {
+      background-color: #0e6c38;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .btn-submit:hover {
+      background-color: #0b5a2d;
+    }
+
+    .close {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .close:hover {
+      color: #0e6c38;
+    }
+
+    .file-link {
+      color: #0e6c38;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+
+    .file-link:hover {
+      text-decoration: underline;
+    }
+
+    .dark-mode {
+      background-color: #292b40;
+      color: #f1f1f1;
+    }
+
+    body.dark-mode table, body.dark-mode th, body.dark-mode td,
+    body.light-mode table, body.light-mode th, body.light-mode td {
+      color: #000 !important;
+    }
+
+    .swal2-popup {
+      font-size: 0.9rem !important;
+    }
+
+    .requirement-type {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.85em;
+      margin: 2px;
+    }
+
+    .requirement-type.pre {
+      background-color: #e3f2fd;
+      color: #1976d2;
+      border: 1px solid #bbdefb;
+    }
+
+    .requirement-type.post {
+      background-color: #f3e5f5;
+      color: #7b1fa2;
+      border: 1px solid #e1bee7;
+    }
+
+    .requirement-type.during {
+      background-color: #e8f5e9;
+      color: #388e3c;
+      border: 1px solid #c8e6c9;
+    }
+
+    .back-btn {
+      background-color: #0e6c38;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    .back-btn:hover {
+      background-color: #0b5a2e;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <div class="header"></div>
+
+    <div class="welcome-banner">
+      <h1>SUBMISSION OVERVIEW</h1>
+    </div>
+
+    <div class="student-info">
+      <h3>Trainee Information</h3>
+      <div class="info-grid" id="traineeInfo">
+        <!-- Trainee info will be populated here -->
+      </div>
+    </div>
+
+    <div class="requirements-section" id="preReqSection" style="display:none;">
+      <h3>Pre-Requirements Overview</h3>
+      <table id="preRequirementsTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Requirement Name</th>
+            <th>Files</th>
+            <th>Status</th>
+            <th>Remarks</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="preSubmissionTableBody">
+          <!-- Pre-Requirements data will be populated here -->
+        </tbody>
+      </table>
+    </div>
+    <div class="requirements-section" id="postReqSection" style="display:none;">
+      <h3>Post-Requirements Overview</h3>
+      <table id="postRequirementsTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Requirement Name</th>
+            <th>Files</th>
+            <th>Status</th>
+            <th>Remarks</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="postSubmissionTableBody">
+          <!-- Post-Requirements data will be populated here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="remarksModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeRemarksModal()">&times;</span>
+      <h3>Update Status and Remarks</h3>
+
+      <div class="form-group">
+        <label for="mainSelect">Decision:</label>
+        <select id="mainSelect" onchange="handleMainSelect()">
+          <option value="">-- Select Decision --</option>
+          <option value="ACCEPTED">Accept</option>
+          <option value="REJECTED">Reject</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="acceptedOptions" style="display:none;">
+        <label for="acceptReason">Reason for Acceptance:</label>
+        <select id="acceptReason" onchange="handleAcceptReason()">
+          <option value="">-- Select --</option>
+          <option value="Validated">Validated</option>
+          <option value="Completed">Completed</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" id="customAcceptReason" placeholder="Enter custom reason" style="margin-top:10px; display:none;">
+        <textarea id="acceptRemarks" rows="3" placeholder="Remarks/Comments (optional)" style="margin-top:10px;"></textarea>
+      </div>
+
+      <div class="form-group" id="rejectedOptions" style="display:none;">
+        <label for="rejectReason">Select Reject Reason:</label>
+        <select id="rejectReason" onchange="handleRejectReason()" required>
+          <option value="" disabled selected>Select reason</option>
+          <option value="Lack of documents">Lack of documents</option>
+          <option value="RejectOthers">Others...</option>
+        </select>
+
+        <div id="missingDocsGroup" style="display:none;">
+          <label>Select Missing Document(s):</label>
+          <div id="missingDocsList">
+            <!-- Missing documents checkboxes will be populated here -->
+          </div>
+        </div>
+
+        <textarea id="rejectRemarks" rows="3" placeholder="Remarks/Comments (optional)" style="margin-top:10px;"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button onclick="closeRemarksModal()" class="secondary">Cancel</button>
+        <button onclick="saveRemarks()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Update Modal -->
+  <div id="statusModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('statusModal')">&times;</span>
+      <h2 class="modal-title">Update Submission Status</h2>
+      <div class="modal-body">
+        <div class="status-options">
+          <div class="status-option">
+            <input type="radio" id="statusApproved" name="status" value="Approved">
+            <label for="statusApproved">✓ Approve</label>
+          </div>
+          <div class="status-option">
+            <input type="radio" id="statusRejected" name="status" value="Rejected">
+            <label for="statusRejected">✕ Reject</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="remarks">Remarks:</label>
+          <textarea id="remarks" placeholder="Enter your feedback or comments here..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button onclick="updateStatus()" class="btn-submit">Submit Decision</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+  <script>
+    let currentSubmission = null;
+    let currentSubmissionId = null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const traineeId = urlParams.get('trainee_id');
+
+    if (!traineeId) {
+      window.location.href = 'coordinator_SubmissionOverview.html';
+    }
+
+    // Load trainee data and submissions on page load
+    document.addEventListener('DOMContentLoaded', loadTraineeData);
+
+    function loadTraineeData() {
+      fetch(`php/get_trainee_submission_history.php?trainee_id=${traineeId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            renderTraineeInfo(data.trainee);
+            renderSubmissions(data.submissions);
+          } else {
+            console.error('Error loading trainee data:', data.message);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message
+            });
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function renderTraineeInfo(trainee) {
+      const infoGrid = document.getElementById('traineeInfo');
+      infoGrid.innerHTML = `
+        <div class="info-item"><strong>Trainee Name:</strong><span>${trainee.full_name}</span></div>
+        <div class="info-item"><strong>Trainee ID:</strong><span>${trainee.trainee_id}</span></div>
+        <div class="info-item"><strong>Program:</strong><span>${trainee.program}</span></div>
+        <div class="info-item"><strong>Year/Section:</strong><span>${trainee.section}</span></div>
+        <div class="info-item"><strong>Contact Number:</strong><span>${trainee.contact_number}</span></div>
+        <div class="info-item"><strong>Corporate Partners:</strong><span>${trainee.company_name || 'Not assigned'}</span></div>
+      `;
+    }
+
+    function renderSubmissions(submissions) {
+      // Split submissions by type
+      // Filter out approved pre-requirements
+      const preSubs = submissions.filter(s => s.requirement_type === 'pre' && s.status !== 'Approved');
+      const postSubs = submissions.filter(s => s.requirement_type === 'post' && s.status !== 'Approved' && s.status !== 'Not Submitted');
+      const typeParam = new URLSearchParams(window.location.search).get('type');
+
+      // Show/hide sections based on type param
+      document.getElementById('preReqSection').style.display = (!typeParam || typeParam === 'pre') ? '' : 'none';
+      document.getElementById('postReqSection').style.display = (!typeParam || typeParam === 'post') ? '' : 'none';
+
+      // Render Pre-Requirements
+      const preTbody = document.getElementById('preSubmissionTableBody');
+      preTbody.innerHTML = '';
+      if (preSubs.length === 0 && (!typeParam || typeParam === 'pre')) {
+        preTbody.innerHTML = `<tr><td colspan="7" style="text-align: center;">No pre-requirements found</td></tr>`;
+      } else {
+        preSubs.forEach(submission => {
+          const submissionDate = submission.date_submitted ? new Date(submission.date_submitted) : null;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${submissionDate ? submissionDate.toLocaleDateString() : 'Not submitted'}</td>
+            <td>${submissionDate ? submissionDate.toLocaleTimeString() : 'Not submitted'}</td>
+            <td>${submission.requirement_name}</td>
+            <td>${renderFiles(submission)}</td>
+            <td class="status-${submission.status.toLowerCase().replace(/\s+/g, '-')}">${submission.status}</td>
+            <td>${submission.remarks || 'No remarks'}</td>
+            <td>${submission.status !== 'Not Submitted' && submission.status !== 'Approved' ? `<button class="btn-blue" onclick="openStatusModal(${submission.submission_id})">Update Status</button>` : submission.status === 'Approved' ? '<span class="text-success">Approved</span>' : '<span class="text-muted">Awaiting submission</span>'}</td>
+          `;
+          preTbody.appendChild(row);
+        });
+      }
+
+      // Render Post-Requirements
+      const postTbody = document.getElementById('postSubmissionTableBody');
+      postTbody.innerHTML = '';
+      if (postSubs.length === 0 && (!typeParam || typeParam === 'post')) {
+        postTbody.innerHTML = `<tr><td colspan="7" style="text-align: center;">No post-requirements found</td></tr>`;
+      } else {
+        postSubs.forEach(submission => {
+          const submissionDate = submission.date_submitted ? new Date(submission.date_submitted) : null;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${submissionDate ? submissionDate.toLocaleDateString() : 'Not submitted'}</td>
+            <td>${submissionDate ? submissionDate.toLocaleTimeString() : 'Not submitted'}</td>
+            <td>${submission.requirement_name}</td>
+            <td>${renderFiles(submission)}</td>
+            <td class="status-${submission.status.toLowerCase().replace(/\s+/g, '-')}">${submission.status}</td>
+            <td>${submission.remarks || 'No remarks'}</td>
+            <td>${submission.status !== 'Not Submitted' ? `<button class="btn-blue" onclick="openStatusModal(${submission.submission_id})">Update Status</button>` : '<span class="text-muted">Awaiting submission</span>'}</td>
+          `;
+          postTbody.appendChild(row);
+        });
+      }
+    }
+
+    function renderFiles(submission) {
+      if (!submission.file_path) return 'No files';
+      let fileUrl = '';
+      if (submission.requirement_type === 'pre') {
+        fileUrl = `/upsystem/html/uploads/pre/${submission.file_path.split('/').pop()}`;
+      } else {
+        fileUrl = `/upsystem/uploads/post/${submission.file_path.split('/').pop()}`;
+      }
+      const displayName = submission.file_name || submission.file_path.split('/').pop();
+      return `<a href="${fileUrl}" class="file-link" target="_blank">${displayName}</a>`;
+    }
+
+    function openStatusModal(submissionId) {
+      currentSubmissionId = submissionId;
+      document.getElementById('statusModal').style.display = 'block';
+      document.getElementById('remarks').value = '';
+      document.querySelectorAll('input[name="status"]').forEach(radio => radio.checked = false);
+      // Hide remarks field initially
+      document.querySelector('.form-group label[for="remarks"]').parentElement.style.display = 'none';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+      currentSubmissionId = null;
+    }
+
+    function updateStatus() {
+      const status = document.querySelector('input[name="status"]:checked')?.value;
+      const remarks = document.getElementById('remarks').value.trim();
+
+      if (!status) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Status Required',
+          text: 'Please select a status (Approve or Reject)'
+        });
+        return;
+      }
+
+      // Only require remarks if status is Rejected
+      if (status === 'Rejected' && !remarks) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Remarks Required',
+          text: 'Please provide remarks'
+        });
+        return;
+      }
+
+      // Show loading state
+      Swal.fire({
+        title: 'Updating Status',
+        text: 'Please wait...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // Send update to server
+      fetch('php/update_requirement_status.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          requirement_id: currentSubmissionId,
+          status: status,
+          remarks: remarks
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Status updated successfully'
+          }).then(() => {
+            closeModal('statusModal');
+            loadTraineeData(); // Reload the data
+          });
+        } else {
+          throw new Error(data.message || 'Failed to update status');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message || 'Failed to update status'
+        });
+      });
+    }
+
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+    });
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      if (event.target === document.getElementById('remarksModal')) {
+        closeRemarksModal();
+      }
+    }
+
+    // Add this after your other script functions
+    document.addEventListener('DOMContentLoaded', function() {
+      // Listen for status radio changes to show/hide remarks
+      document.querySelectorAll('input[name="status"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          const remarksGroup = document.querySelector('.form-group label[for="remarks"]').parentElement;
+          if (this.value === 'Rejected') {
+            remarksGroup.style.display = '';
+          } else {
+            remarksGroup.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coordinator - Requirements Checklist</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .header {
+      background-color: #0e6c38;
+      color: white;
+      padding: 15px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .container {
+      width: 98%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 1300px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      background-color: #0e6c38;
+      padding: 15px;
+      color: white;
+      align-items: center;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 2px solid gray;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 5px;
+      width: 100%;
+    }
+
+    .toolbar .buttons {
+      display: flex;
+      gap: 10px;
+      margin-right: 7px;
+    }
+    
+    .sort-dropdown {
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid gray;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black"><polygon points="0,0 16,0 8,8"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 12px;
+      padding-right: 2.5rem;
+      height: 36px;
+      margin-left: 10px;
+    }
+
+    .toolbar button {
+      background: #028a3d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .toolbar button:hover {
+      background-color: #dfd61e;
+    }
+
+    .search-btn img, .toolbar button img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .section-filter {
+      margin-bottom: 20px;
+    }
+
+    .section-filter label {
+      font-weight: bold;
+      color: #0e6c38;
+      margin-right: 10px;
+    }
+
+    .section-filter select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .requirement-filter {
+      margin-bottom: 20px;
+    }
+
+    .requirement-filter label {
+      font-weight: bold;
+      color: #0e6c38;
+      margin-right: 10px;
+    }
+
+    .requirement-filter select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .table th {
+      background-color: #028a3d;
+      color: white;
+      font-weight: bold;
+      padding: 15px 10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .status-pending {
+      color: #ff9800;
+      font-weight: bold;
+    }
+    
+    .status-complete {
+      color: #4caf50;
+      font-weight: bold;
+    }
+    
+    .status-incomplete {
+      color: #f44336;
+      font-weight: bold;
+    }
+    
+    .requirement-pre {
+      background-color: #e3f2fd;
+    }
+    
+    .requirement-during {
+      background-color: #e8f5e9;
+    }
+    
+    .requirement-post {
+      background-color: #fff8e1;
+    }
+    
+    .document-preview {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    
+    .document-preview:hover {
+      transform: scale(1.5);
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+    }
+    
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 25px;
+      border: 1px solid #0e6c38;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 10px;
+      position: relative;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .close {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      color: #666;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    
+    .close:hover {
+      color: #0e6c38;
+    }
+    
+    .modal-body {
+      padding: 20px 0;
+    }
+    
+    .modal-title {
+      color: #0e6c38;
+      margin-bottom: 25px;
+      font-size: 1.5em;
+      text-align: center;
+      font-weight: bold;
+    }
+    
+    .status-options {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .status-option {
+      flex: 1;
+    }
+
+    .status-option input[type="radio"] {
+      display: none;
+    }
+    
+    .status-option label {
+      display: block;
+      padding: 12px;
+      text-align: center;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+    
+    .status-option input[type="radio"]:checked + label {
+      background-color: #0e6c38;
+      color: white;
+      border-color: #0e6c38;
+    }
+    
+    #statusApproved + label {
+      color: #0e6c38;
+    }
+    
+    #statusRejected + label {
+      color: #dc3545;
+    }
+    
+    #statusApproved:checked + label {
+      background-color: #0e6c38;
+      border-color: #0e6c38;
+    }
+    
+    #statusRejected:checked + label {
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #0e6c38;
+      font-weight: bold;
+    }
+    
+    .form-group textarea {
+      width: 95%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      resize: vertical;
+      min-height: 100px;
+      font-family: inherit;
+    }
+    
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #0e6c38;
+    }
+    
+    .submit-btn {
+      background-color: #0e6c38;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+    
+    .submit-btn:hover {
+      background-color: #0a5129;
+    }
+    
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 16px;
+      position: fixed;
+      z-index: 1;
+      right: 30px;
+      top: 30px;
+      font-size: 17px;
+    }
+    
+    .toast.show {
+      visibility: visible;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+    
+    @keyframes fadein {
+      from {top: 0; opacity: 0;}
+      to {top: 30px; opacity: 1;}
+    }
+    
+    @keyframes fadeout {
+      from {top: 30px; opacity: 1;}
+      to {top: 0; opacity: 0;}
+    }
+
+    .dark-mode {
+    background-color: #292b40;
+    color: #f1f1f1;
+    }
+
+    body.dark-mode table, body.dark-mode th, body.dark-mode td,
+    body.light-mode table, body.light-mode th, body.light-mode td {
+      color: #000 !important;
+    }
+
+    .requirement-type {
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .requirement-pre {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .requirement-post {
+      background-color: #fff8e1;
+      color: #f57f17;
+    }
+
+    .requirement-during {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-pending {
+      color: #ff9800;
+      font-weight: bold;
+    }
+    
+    .status-approved {
+      color: #4caf50;
+      font-weight: bold;
+    }
+    
+    .status-rejected {
+      color: #f44336;
+      font-weight: bold;
+    }
+
+    .status-needs-revision {
+      color: #ff5722;
+      font-weight: bold;
+    }
+
+    .document-preview {
+      max-width: 100px;
+      max-height: 100px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .document-preview:hover {
+      transform: scale(1.5);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+
+    .status-options {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .status-option {
+      flex: 1;
+      text-align: center;
+    }
+
+    .status-option input[type="radio"] {
+      display: none;
+    }
+
+    .status-option label {
+      display: block;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .status-option input[type="radio"]:checked + label {
+      border-color: #0e6c38;
+      background-color: #e8f5e9;
+    }
+
+    .comment-box {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      resize: vertical;
+      min-height: 100px;
+      margin-bottom: 20px;
+    }
+
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 16px;
+      position: fixed;
+      z-index: 1;
+      right: 30px;
+      top: 30px;
+      font-size: 17px;
+    }
+
+    .toast.show {
+      visibility: visible;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+
+    @keyframes fadein {
+      from {top: 0; opacity: 0;}
+      to {top: 30px; opacity: 1;}
+    }
+
+    @keyframes fadeout {
+      from {top: 30px; opacity: 1;}
+      to {top: 0; opacity: 0;}
+    }
+
+    .action-btn {
+      background: none;
+      color: #0e6c38;
+      border: none;
+      padding: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      margin: 0 auto;
+      position: relative;
+      border-radius: 4px;
+    }
+
+    .action-btn::before {
+      content: '✏️';
+      font-size: 18px;
+      line-height: 1;
+      filter: none;
+    }
+
+    .action-btn:hover {
+      background-color: rgba(14, 108, 56, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .action-btn:active {
+      transform: translateY(0);
+      background-color: rgba(14, 108, 56, 0.2);
+    }
+
+    /* Make sure the action column has enough width */
+    .table th:nth-child(11), 
+    .table td:nth-child(11) {
+      width: 45px;
+      min-width: 45px;
+      max-width: 45px;
+      padding: 4px;
+    }
+
+    /* Adjust other columns to accommodate the new action column width */
+    .table th:nth-child(1), .table td:nth-child(1) { width: 4%; }  /* No. */
+    .table th:nth-child(2), .table td:nth-child(2) { width: 11%; } /* Requirement Type */
+    .table th:nth-child(3), .table td:nth-child(3) { width: 7%; }  /* Document */
+    .table th:nth-child(4), .table td:nth-child(4) { width: 9%; }  /* Student ID */
+    .table th:nth-child(5), .table td:nth-child(5) { width: 15%; } /* Name */
+    .table th:nth-child(6), .table td:nth-child(6) { width: 8%; }  /* Program */
+    .table th:nth-child(7), .table td:nth-child(7) { width: 7%; }  /* Section */
+    .table th:nth-child(8), .table td:nth-child(8) { width: 9%; }  /* Email */
+    .table th:nth-child(9), .table td:nth-child(9) { width: 7%; }  /* Status */
+    .table th:nth-child(10), .table td:nth-child(10) { width: 7%; } /* Comment */
+
+    .no-submission {
+      color: #999;
+      font-style: italic;
+      font-size: 0.9em;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <div class="header">TRAINEE REQUIREMENTS CHECKLIST</div>
+
+  <div class="container">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-container">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search by name, ID, or submission type...">
+        </div>
+        <button class="search-btn" onclick="filterTable()">
+          <img src="icons/searchmag.png" alt="Search"> Search
+        </button>
+      </div>
+      <div class="buttons">
+        <!-- Generate button removed as requested -->
+      </div>
+      <select class="sort-dropdown" onchange="onSortByProgram()">
+        <option value="" disabled selected>SORT BY...</option>
+        <option value="program">SORT BY PROGRAM</option>
+      </select>
+      <select id="programFilter" style="display:none; margin-left:10px;"></select>
+      <select id="sectionFilter" style="display:none; margin-left:10px;"></select>
+    </div>
+
+    <!-- Requirements Checklist Table -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Submission Type</th>
+          <th>Document</th>
+          <th>Student ID</th>
+          <th>Name</th>
+          <th>Program</th>
+          <th>Section</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Comment</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="checklistTableBody">
+        <!-- Table content will be dynamically populated -->
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Document Preview Modal -->
+  <div id="documentModal" class="modal">
+    <span class="close" onclick="closeModal('documentModal')">&times;</span>
+    <div class="modal-content">
+      <img id="modalImage" style="max-width: 100%;">
+    </div>
+  </div>
+  
+  <!-- Status Update Modal -->
+  <div id="statusModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('statusModal')">&times;</span>
+      <h2 class="modal-title">Update Submission Status</h2>
+      <div class="modal-body">
+        <div class="status-options">
+          <div class="status-option">
+            <input type="radio" id="statusApproved" name="status" value="approved">
+            <label for="statusApproved">Approve</label>
+          </div>
+          <div class="status-option">
+            <input type="radio" id="statusRejected" name="status" value="rejected">
+            <label for="statusRejected">Reject</label>
+          </div>
+        </div>
+        <div class="form-group" id="remarksGroup" style="display:none;">
+          <label for="remarks">Remarks:</label>
+          <textarea id="remarks" placeholder="Enter your remarks here..."></textarea>
+        </div>
+        <button onclick="updateStatus()" class="submit-btn">Submit</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Toast notification -->
+  <div id="toast" class="toast">Status updated successfully!</div>
+
+  <script>
+    let submissions = [];
+    let lastFilteredData = [];
+    let currentSubmission = null;
+
+    document.addEventListener('DOMContentLoaded', loadSubmissions);
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('programFilter').addEventListener('change', function() {
+        const value = this.value;
+        if (value) {
+          const filtered = submissions.filter(t => t.program === value);
+          renderSubmissions(filtered);
+        } else {
+          document.querySelector('.sort-dropdown').value = '';
+          renderSubmissions();
+        }
+      });
+      document.getElementById('sectionFilter').addEventListener('change', function() {
+        const value = this.value;
+        if (value) {
+          const filtered = submissions.filter(t => t.section === value);
+          renderSubmissions(filtered);
+        } else {
+          document.querySelector('.sort-dropdown').value = '';
+          renderSubmissions();
+        }
+      });
+    });
+
+    function loadSubmissions() {
+      // First check if session is active
+      fetch('php/check_session.php')
+        .then(response => response.json())
+        .then(sessionData => {
+          console.log('Session check response:', sessionData);
+          
+          if (!sessionData.isLoggedIn) {
+            console.error('Not logged in');
+            window.parent.location.href = 'index.html';
+            return;
+          }
+          
+          if (sessionData.role !== 'coordinator') {
+            console.error('Invalid role:', sessionData.role);
+            window.parent.location.href = 'index.html';
+            return;
+          }
+          
+          // If session is valid, proceed with loading submissions
+          return fetch('php/get_coordinator_checklist.php')
+            .then(response => response.json())
+            .then(data => {
+              console.log('Checklist data response:', data);
+              
+              if (data.success) {
+                submissions = data.data;
+                // Populate program and section filters
+                const programSet = new Set(submissions.map(t => t.program));
+                const sectionSet = new Set(submissions.map(t => t.section));
+                const programFilter = document.getElementById('programFilter');
+                const sectionFilter = document.getElementById('sectionFilter');
+                programFilter.innerHTML = '<option value="">Select Program</option>' + 
+                  Array.from(programSet).map(p => `<option value="${p}">${p}</option>`).join('');
+                sectionFilter.innerHTML = '<option value="">Select Section</option>' + 
+                  Array.from(sectionSet).map(s => `<option value="${s}">${s}</option>`).join('');
+                renderSubmissions();
+              } else {
+                throw new Error(data.message || 'Failed to load submissions');
+              }
+            });
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to load submissions. Please try logging in again.',
+            confirmButtonColor: '#028a3d'
+          }).then(() => {
+            window.parent.location.href = 'index.html';
+          });
+        });
+    }
+
+    function renderSubmissions(filteredData) {
+      const tableHead = document.querySelector('.table thead');
+      const tbody = document.getElementById('checklistTableBody');
+      tableHead.innerHTML = `<tr>
+        <th>No.</th>
+        <th>Submission Type</th>
+        <th>Document</th>
+        <th>Student ID</th>
+        <th>Name</th>
+        <th>Program</th>
+        <th>Section</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Comment</th>
+        <th>Action</th>
+      </tr>`;
+      tbody.innerHTML = '';
+
+      if (!Array.isArray(filteredData)) {
+        showToast('Invalid submissions data');
+        return;
+      }
+
+      const searchText = document.getElementById('searchInput').value.toLowerCase();
+
+      const filteredSubmissions = filteredData.filter(submission => {
+        if (!submission || !submission.full_name) return false;
+        return submission.full_name.toLowerCase().includes(searchText);
+      });
+
+      lastFilteredData = filteredSubmissions;
+      filteredSubmissions.forEach((submission, index) => {
+        const row = document.createElement('tr');
+        
+        const fileLinks = submission.files?.map(file => 
+          `<a href="${file.path}" class="file-link" target="_blank" title="${file.name}">
+            <img src="icons/document.png" alt="Document" class="document-preview">
+          </a>`
+        ).join('') || 'No files';
+
+        const hasSubmission = submission.submission_id !== null;
+        const actionButton = hasSubmission ? 
+          `<button class="action-btn" onclick="openStatusModal(${submission.submission_id})"></button>` :
+          '<span class="no-submission">Not submitted</span>';
+
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${submission.submission_type || ''}</td>
+          <td>${fileLinks}</td>
+          <td>${submission.trainee_id || ''}</td>
+          <td>${submission.full_name || ''}</td>
+          <td>${submission.program || ''}</td>
+          <td>${submission.section || ''}</td>
+          <td>${submission.email || ''}</td>
+          <td class="status-${(submission.status || 'pending').toLowerCase()}">${submission.status || 'Pending'}</td>
+          <td>${submission.comment || 'No comments'}</td>
+          <td>${actionButton}</td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+      // Update sort dropdown options
+      document.querySelector('.sort-dropdown').innerHTML = `
+        <option value="" disabled selected>SORT BY...</option>
+        <option value="program">SORT BY PROGRAM</option>
+      `;
+    }
+
+    function filterTable() {
+      renderSubmissions();
+    }
+
+    function sortTable(sortBy) {
+      document.getElementById('programFilter').style.display = 'none';
+      document.getElementById('sectionFilter').style.display = 'none';
+      // Reset filter dropdowns if not sorting by program/section
+      if (sortBy !== 'program') document.getElementById('programFilter').value = '';
+      if (sortBy !== 'section') document.getElementById('sectionFilter').value = '';
+      if (sortBy === 'program') {
+        document.getElementById('programFilter').style.display = '';
+        return;
+      }
+      if (sortBy === 'section') {
+        document.getElementById('sectionFilter').style.display = '';
+        return;
+      }
+      // For all other sorts, restore full table and sort
+      switch (sortBy) {
+        case 'id':
+          submissions.sort((a, b) => a.trainee_id.localeCompare(b.trainee_id));
+          break;
+        case 'ascending':
+          submissions.sort((a, b) => a.full_name.localeCompare(b.full_name));
+          break;
+        case 'descending':
+          submissions.sort((a, b) => b.full_name.localeCompare(a.full_name));
+          break;
+        case 'submission_type':
+          submissions.sort((a, b) => (a.submission_type || '').localeCompare(b.submission_type || ''));
+          break;
+        case 'date':
+          submissions.sort((a, b) => new Date(a.date_submitted) - new Date(b.date_submitted));
+          break;
+      }
+      renderSubmissions();
+    }
+
+    function openStatusModal(submissionId) {
+      if (!submissionId) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Invalid submission ID',
+          confirmButtonColor: '#0e6c38'
+        });
+        return;
+      }
+
+      // Find the submission in the submissions array
+      currentSubmission = submissions.find(s => s.submission_id === submissionId);
+      
+      if (!currentSubmission || !currentSubmission.submission_id) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Could not find submission details. Please try refreshing the page.',
+          confirmButtonColor: '#0e6c38'
+        });
+        return;
+      }
+      
+      // Reset form
+      document.getElementById('statusModal').style.display = 'block';
+      document.getElementById('remarks').value = currentSubmission.remarks || '';
+      document.querySelectorAll('input[name="status"]').forEach(radio => {
+        if (radio.value === currentSubmission.status?.toLowerCase()) {
+          radio.checked = true;
+        } else {
+          radio.checked = false;
+        }
+      });
+      toggleRemarksField();
+      // Add event listeners for radio buttons
+      document.getElementById('statusApproved').onchange = toggleRemarksField;
+      document.getElementById('statusRejected').onchange = toggleRemarksField;
+      // Log for debugging
+      console.log('Opening modal for submission:', currentSubmission);
+    }
+
+    function toggleRemarksField() {
+      const status = document.querySelector('input[name="status"]:checked')?.value;
+      const remarksGroup = document.getElementById('remarksGroup');
+      if (status === 'rejected') {
+        remarksGroup.style.display = 'block';
+      } else {
+        remarksGroup.style.display = 'none';
+        document.getElementById('remarks').value = '';
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    function updateStatus() {
+      const status = document.querySelector('input[name="status"]:checked')?.value;
+      const remarks = document.getElementById('remarks').value.trim();
+
+      if (!currentSubmission || !currentSubmission.submission_id) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Invalid submission data. Please try refreshing the page.',
+          confirmButtonColor: '#0e6c38'
+        });
+        return;
+      }
+
+      if (!status) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Status Required',
+          text: 'Please select a status (Approve or Reject)',
+          confirmButtonColor: '#0e6c38'
+        });
+        return;
+      }
+
+      if (status === 'rejected' && !remarks) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Remarks Required',
+          text: 'Please enter your remarks for rejection',
+          confirmButtonColor: '#0e6c38'
+        });
+        return;
+      }
+
+      // Show confirmation dialog
+      Swal.fire({
+        title: 'Confirm Status Update',
+        text: `Are you sure you want to ${status} this submission?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#0e6c38',
+        cancelButtonColor: '#dc3545',
+        confirmButtonText: 'Yes, update it!',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Show loading state
+          Swal.fire({
+            title: 'Updating Status',
+            text: 'Please wait...',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+
+          const updateData = {
+            task_id: currentSubmission.submission_id,
+            status: status === 'approved' ? 'Approved' : 'Rejected',
+            remarks: remarks
+          };
+
+          console.log('Sending update data:', updateData); // Debug log
+
+          // Make the API call
+          fetch('php/update_submission_status.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateData)
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Status Updated!',
+                text: 'The submission status has been updated successfully.',
+                confirmButtonColor: '#0e6c38'
+              }).then(() => {
+                closeModal('statusModal');
+                loadSubmissions(); // Reload the submissions list
+              });
+            } else {
+              throw new Error(data.message || 'Failed to update status');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message || 'An error occurred while updating the status',
+              confirmButtonColor: '#0e6c38'
+            });
+          });
+        }
+      });
+    }
+
+    function showToast(message) {
+      Swal.fire({
+        text: message,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        icon: 'info'
+      });
+    }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+      if (event.target.className === 'modal') {
+        document.querySelectorAll('.modal').forEach(modal => {
+          modal.style.display = 'none';
+        });
+      }
+    }
+
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+    });
+
+    function onSortByProgram() {
+      document.getElementById('programFilter').style.display = '';
+      document.getElementById('sectionFilter').style.display = 'none';
+    }
+
+    document.getElementById('programFilter').addEventListener('change', function() {
+      const value = this.value;
+      if (value) {
+        // Populate sectionFilter based on selected program
+        const sections = Array.from(new Set(submissions.filter(t => t.program === value).map(t => t.section)));
+        const sectionFilter = document.getElementById('sectionFilter');
+        sectionFilter.innerHTML = '<option value="">Select Section</option>' + sections.map(s => `<option value="${s}">${s}</option>`).join('');
+        sectionFilter.style.display = '';
+        renderSubmissions(submissions.filter(t => t.program === value));
+      } else {
+        document.getElementById('sectionFilter').style.display = 'none';
+        renderSubmissions();
+      }
+    });
+
+    document.getElementById('sectionFilter').addEventListener('change', function() {
+      const program = document.getElementById('programFilter').value;
+      const section = this.value;
+      if (section) {
+        renderSubmissions(submissions.filter(t => t.program === program && t.section === section));
+      } else {
+        renderSubmissions(submissions.filter(t => t.program === program));
+      }
+    });
+  </script>
+</body>
+</html>

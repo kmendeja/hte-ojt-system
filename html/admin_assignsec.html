@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SECTION ASSIGNMENT</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+    body.no-scroll {
+      overflow: hidden;
+    }
+    .header {
+      background-color: #0e6c38;
+      color: white;
+      padding: 15px;
+      font-size: 24px;
+      text-align: center;
+    }
+    .container {
+      width: 90%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 1350px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      background-color: #0e6c38;
+      padding: 15px;
+      color: white;
+      align-items: center;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+    .toolbar .buttons {
+      display: flex;
+      gap: 10px;
+      margin-right: 7px;
+    }
+    .toolbar button:hover {
+      background-color: #dfd61e;
+    }
+    .toolbar button {
+      background: #028a3d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .toolbar button img {
+      width: 16px;
+      height: 16px;
+    }
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 2px solid gray;
+      width: 100%;
+      max-width: 400px;
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 5px;
+      width: 100%;
+    }
+    .search-btn {
+      background: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .search-btn img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    .table th {
+      background-color: #028a3d;
+      color: white;
+      position: relative;
+    }
+    .menu {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .menu-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #028a3d;
+      min-width: 100px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      text-align: center;
+      z-index: 10;
+    }
+    .menu-content a {
+      color: white;
+      padding: 10px;
+      display: block;
+      text-decoration: none;
+    }
+    .menu-content a:hover {
+      background-color: #02602e;
+    }
+    .menu.active .menu-content {
+      display: block;
+    }
+    .menu span {
+      font-size: 24px;
+      padding: 5px 10px;
+      line-height: 1;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+    }
+    .modal-content h2 {
+      margin-bottom: 20px;
+      color: #0e6c38;
+    }
+    .modal-content .confirm-btn,
+    .modal-content .cancel-btn {
+      width: 45%;
+      margin: 10px 5px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .confirm-btn {
+      background-color: #0e6c38;
+      color: white;
+    }
+    .cancel-btn {
+      background-color: #ccc;
+    }
+
+    .csvBtn {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #0e6c38;
+      color: white;
+    }
+    #addSectionModal .modal-content,
+    #editSectionModal .modal-content {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 800px;
+      box-shadow: none;
+      position: relative;
+      overflow: visible;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 40px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    .close-btn.inside {
+      color: #0e6c38;
+      font-size: 28px;
+    }
+
+    .modal-content .csvBtn + .csvBtn {
+      margin-top: 10px;
+    }
+
+    .dark-mode {
+     background-color: #292b40;
+     color: #f1f1f1;
+    }
+
+    body.dark-mode table, body-dark-mode th, body-dark-mode td,
+    body.light-mode table, body-light-mode th, body-light-mode td {
+      color: #000 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">SECTION ASSIGNMENT</div>
+  <div class="container">
+    <div class="toolbar">
+      <div class="search-container">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search for...">
+        </div>
+        <button class="search-btn" onclick="filterAssignments()">
+          <img src="icons/searchmag.png" alt="Search"> Search
+        </button>
+      </div>
+      <div class="buttons">
+        <button onclick="openOptionModal()" id="openAddCompany">
+          <img src="icons/add.png" alt="Add"> ADD
+        </button>
+      </div>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Coordinator</th>
+          <th>Program</th>
+          <th>Section</th>
+          <th>Contact Number</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="assignTableBody">
+        <!-- JS will populate assignments here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add Section Modal -->
+  <div id="addSectionModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeAddModal()">×</button>
+      <iframe src="admin_assignsecAdd.html" width="103%" height="450px" style="border: none; border-radius: 5px;"></iframe>
+    </div>
+  </div>
+
+  <!-- Edit Company Modal -->
+  <div id="editSectionModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">×</button>
+      <iframe src="admin_assignsecEdit.html" width="103%" height="450px" style="border: none; border-radius: 10px;"></iframe>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteConfirmModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Are you sure you want to delete this record?</h2>
+      <button class="confirm-btn" onclick="deleteConfirmed()">Confirm</button>
+      <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    let rowToDelete = null;
+    let editAssignmentId = null;
+
+    // Listen for messages from iframes
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'ASSIGNMENT_UPDATED' && event.data.success) {
+        loadAssignments();
+        enableBackgroundScroll();
+      }
+    });
+
+    function disableBackgroundScroll() {
+      document.body.classList.add('no-scroll');
+    }
+
+    function enableBackgroundScroll() {
+      document.body.classList.remove('no-scroll');
+    }
+
+    function loadAssignments() {
+      fetch('php/admin_assignsec.php?action=list')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('assignTableBody');
+          tbody.innerHTML = '';
+          if (data.success && data.assignments.length) {
+            data.assignments.forEach((a, idx) => {
+              tbody.innerHTML += `
+                <tr>
+                  <td>${idx + 1}</td>
+                  <td>${a.full_name || ''}</td>
+                  <td>${a.program || ''}</td>
+                  <td>${a.section || ''}</td>
+                  <td>${a.contact_number}</td>
+                  <td>
+                    <div class="menu">
+                      <span onclick="toggleMenu(this)">⋮</span>
+                      <div class="menu-content">
+                        <a href="#" onclick="editAssignment(${a.id}, ${a.coordinator_id}, '${a.program}', '${a.section}')">Edit</a>
+                        <a href="#" onclick="confirmDeleteAssignment(${a.id})">Delete</a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            });
+          } else {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No assignments found.</td></tr>';
+          }
+        });
+    }
+
+    function openOptionModal() {
+      document.getElementById('addSectionModal').style.display = 'flex';
+      disableBackgroundScroll();
+    }
+
+    function editAssignment(id, coordinator_id, program, section) {
+      editAssignmentId = id;
+      document.getElementById("editSectionModal").style.display = "flex";
+      disableBackgroundScroll();
+      const iframe = document.querySelector('#editSectionModal iframe');
+      iframe.src = 'admin_assignsecEdit.html'; // Force reload
+      if (iframe) {
+        iframe.onload = function() {
+          iframe.contentWindow.postMessage({
+            type: 'EDIT_ASSIGNMENT',
+            data: { id, coordinator_id, program, section }
+          }, '*');
+        };
+      }
+    }
+
+    function closeModal() {
+      document.getElementById("editSectionModal").style.display = "none";
+      enableBackgroundScroll();
+    }
+
+    function closeAddModal() {
+      document.getElementById('addSectionModal').style.display = 'none';
+      enableBackgroundScroll();
+    }
+
+    function toggleMenu(menuElem) {
+      menuElem.parentElement.classList.toggle("active");
+    }
+
+    function confirmDeleteAssignment(id) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'This assignment will be deleted.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: 'php/admin_assignsec.php',
+            type: 'POST',
+            data: {
+              action: 'delete',
+              id: id
+            },
+            success: function(response) {
+              if (response.success) {
+                Swal.fire(
+                  'Deleted!',
+                  response.message || 'Section assignment has been deleted.',
+                  'success'
+                );
+                loadAssignments();
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: response.message || 'Failed to delete section assignment'
+                });
+              }
+            },
+            error: function() {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while processing your request'
+              });
+            }
+          });
+        }
+      });
+    }
+
+    // Listen for add/edit success from iframes
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'ASSIGNMENT_UPDATED') {
+        loadAssignments();
+        closeModal();
+        closeAddModal();
+      }
+      if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+    });
+
+    function filterAssignments() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('#assignTableBody tr');
+      rows.forEach(row => {
+        const nameCell = row.getElementsByTagName('td')[1]; // Coordinator is the 2nd column
+        if (nameCell && nameCell.textContent.toLowerCase().includes(input)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', loadAssignments);
+  </script>
+</body>
+</html>

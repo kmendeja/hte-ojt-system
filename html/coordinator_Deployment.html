@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>List of Coordinator</title>
+  <!-- Add SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+  <!-- Add SheetJS library -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <!-- Add SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+    body.no-scroll {
+      overflow: hidden;
+    }
+    .header {
+      background-color: #0e6c38;
+      color: white;
+      padding: 15px;
+      font-size: 24px;
+      text-align: center;
+    }
+    .container {
+      width: 95%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 1500px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      background-color: #0e6c38;
+      padding: 15px;
+      color: white;
+      align-items: center;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+    .toolbar .buttons {
+      display: flex;
+      gap: 10px;
+      margin-right: 7px;
+    }
+    .sort-dropdown {
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid gray;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black"><polygon points="0,0 16,0 8,8"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 12px;
+      padding-right: 2.5rem;
+      height: 36px;
+      margin-left: 10px;
+    }
+    .toolbar button:hover {
+      background-color: #dfd61e;
+    }
+    .toolbar button {
+      background: #028a3d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .toolbar button img {
+      width: 16px;
+      height: 16px;
+    }
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 2px solid gray;
+      width: 100%;
+      max-width: 400px;
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 5px;
+      width: 100%;
+    }
+    .search-btn {
+      background: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .search-btn img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    .table th {
+      background-color: #028a3d;
+      color: white;
+      position: relative;
+      font-size: 13px;
+    }
+    .table td {
+      font-size: 12px;
+    }
+    .menu {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .menu-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #028a3d;
+      min-width: 100px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      text-align: center;
+      z-index: 10;
+    }
+    .menu-content a {
+      color: white;
+      padding: 10px;
+      display: block;
+      text-decoration: none;
+    }
+    .menu-content a:hover {
+      background-color: #02602e;
+    }
+    .menu.active .menu-content {
+      display: block;
+    }
+    .menu span {
+      font-size: 24px;
+      padding: 5px 10px;
+      line-height: 1;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    /* Profile image style */
+    .profile-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+    }
+    .modal-content h2 {
+      margin-bottom: 20px;
+      color: #0e6c38;
+    }
+    .modal-content .confirm-btn,
+    .modal-content .cancel-btn {
+      width: 45%;
+      margin: 10px 5px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .confirm-btn {
+      background-color: #0e6c38;
+      color: white;
+    }
+    .cancel-btn {
+      background-color: #ccc;
+    }
+
+    #DeployModal .modal-content,
+    #editDeployModal .modal-content {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 1000px;
+      box-shadow: none;
+      position: relative;
+      overflow: visible;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 40px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    .close-btn.inside {
+      color: #0e6c38;
+      font-size: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">TRAINEE DEPLOYMENT</div>
+  <div class="container">
+    <div class="toolbar">
+      <div class="search-container">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search for...">
+        </div>
+        <button class="search-btn" onclick="searchTrainees()">
+          <img src="icons/searchmag.png" alt="Search"> Search
+        </button>
+      </div>
+      <div class="buttons">
+        <button onclick="generateReport()">
+          <img src="icons/generate.png" alt="Generate"> GENERATE
+        </button>
+      </div>
+      <select class="sort-dropdown" id="sortDropdown" onchange="onSortByProgram()">
+        <option value="" disabled selected>SORT BY...</option>
+        <option value="program">SORT BY PROGRAM</option>
+      </select>
+      <select id="programFilter" style="display:none; margin-left:10px;"></select>
+      <select id="sectionFilter" style="display:none; margin-left:10px;"></select>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Profile</th>
+          <th>Student ID</th>
+          <th>Name</th>
+          <th>Program</th>
+          <th>Section</th>
+          <th>Contact Number</th>
+          <th>Email</th>
+          <th>Company Assigned</th>
+          <th>Nature of Work</th>
+          <th>Starting Date</th>
+          <th>End Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="traineeTableBody">
+        <!-- Data will be loaded dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modals -->
+  <div id="DeployModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">×</button>
+      <iframe id="deploymentForm" width="103%" height="550px" style="border: none; border-radius: 10px;"></iframe>
+    </div>
+  </div>
+
+  <div id="editDeployModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">×</button>
+      <iframe id="editDeploymentForm" width="103%" height="550px" style="border: none; border-radius: 10px;"></iframe>
+    </div>
+  </div>
+
+  <div id="deleteConfirmModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Are you sure you want to delete this record?</h2>
+      <button class="confirm-btn" onclick="deleteConfirmed()">Confirm</button>
+      <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    let trainees = [];
+    let currentTrainee = null;
+    let originalTableHead = '';
+    let originalRows = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Store the original table head and rows
+      const tableHead = document.querySelector('.table thead');
+      const tableBody = document.querySelector('.table tbody');
+      originalTableHead = tableHead.innerHTML;
+      originalRows = Array.from(tableBody.children).map(row => row.outerHTML);
+      // Add program and section filter dropdowns if not present
+      if (!document.getElementById('programFilter')) {
+        const sortDropdown = document.getElementById('sortDropdown');
+        const programFilter = document.createElement('select');
+        programFilter.id = 'programFilter';
+        programFilter.style.display = 'none';
+        programFilter.style.marginLeft = '10px';
+        sortDropdown.parentNode.insertBefore(programFilter, sortDropdown.nextSibling);
+      }
+      if (!document.getElementById('sectionFilter')) {
+        const sortDropdown = document.getElementById('sortDropdown');
+        const sectionFilter = document.createElement('select');
+        sectionFilter.id = 'sectionFilter';
+        sectionFilter.style.display = 'none';
+        sectionFilter.style.marginLeft = '10px';
+        sortDropdown.parentNode.insertBefore(sectionFilter, sortDropdown.nextSibling);
+      }
+      document.getElementById('programFilter').addEventListener('change', function() {
+        const value = this.value;
+        if (value) {
+          // Populate sectionFilter based on selected program
+          const sections = Array.from(new Set(trainees.filter(t => t.program === value).map(t => t.section)));
+          const sectionFilter = document.getElementById('sectionFilter');
+          sectionFilter.innerHTML = '<option value="">Select Section</option>' + sections.map(s => `<option value="${s}">${s}</option>`).join('');
+          sectionFilter.style.display = '';
+          displayTrainees(trainees.filter(t => t.program === value));
+        } else {
+          document.getElementById('sectionFilter').style.display = 'none';
+          displayTrainees(trainees);
+        }
+      });
+      document.getElementById('sectionFilter').addEventListener('change', function() {
+        const program = document.getElementById('programFilter').value;
+        const section = this.value;
+        if (section) {
+          displayTrainees(trainees.filter(t => t.program === program && t.section === section));
+        } else {
+          displayTrainees(trainees.filter(t => t.program === program));
+        }
+      });
+      loadTrainees();
+    });
+
+    function loadTrainees() {
+      fetch('php/deployment_operations.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            trainees = data.data.filter(t => !t.ojt_status || t.ojt_status !== 'completed');
+            // Populate program and section filters
+            const programSet = new Set(trainees.map(t => t.program));
+            const sectionSet = new Set(trainees.map(t => t.section));
+            const programFilter = document.getElementById('programFilter');
+            const sectionFilter = document.getElementById('sectionFilter');
+            programFilter.innerHTML = '<option value="">Select Program</option>' +
+              Array.from(programSet).map(p => `<option value="${p}">${p}</option>`).join('');
+            sectionFilter.innerHTML = '<option value="">Select Section</option>' +
+              Array.from(sectionSet).map(s => `<option value="${s}">${s}</option>`).join('');
+            displayTrainees(trainees);
+          } else {
+            console.error('Error loading trainees:', data.message);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function displayTrainees(traineesToShow) {
+      const tableHead = document.querySelector('.table thead');
+      const tbody = document.getElementById('traineeTableBody');
+      tableHead.innerHTML = `<tr>
+        <th>No.</th>
+        <th>Profile</th>
+        <th>Student ID</th>
+        <th>Name</th>
+        <th>Program</th>
+        <th>Section</th>
+        <th>Contact Number</th>
+        <th>Email</th>
+        <th>Company Assigned</th>
+        <th>Nature of Work</th>
+        <th>Starting Date</th>
+        <th>End Date</th>
+        <th>Actions</th>
+      </tr>`;
+      tbody.innerHTML = '';
+
+      traineesToShow.forEach((trainee, index) => {
+        const row = document.createElement('tr');
+        row.className = 'clickable-row';
+        row.setAttribute('data-trainee-id', trainee.trainee_id);
+        
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><img src="${trainee.profile_image || 'icons/default_profile.png'}" alt="Profile" class="profile-img"></td>
+          <td>${trainee.trainee_id}</td>
+          <td>${trainee.full_name}</td>
+          <td>${trainee.program}</td>
+          <td>${trainee.section}</td>
+          <td>${trainee.contact_number}</td>
+          <td>${trainee.email}</td>
+          <td>${trainee.company_assigned || 'Not Assigned'}</td>
+          <td>${trainee.nature_of_work || 'Not Specified'}</td>
+          <td>${trainee.deployment_date || 'Not Set'}</td>
+          <td>${trainee.end_date || 'Not Set'}</td>
+          <td>
+            <div class="menu">
+              <span onclick="toggleMenu(this, event)">⋮</span>
+              <div class="menu-content">
+                <a href="#" onclick="edit('${trainee.trainee_id}', event)">Edit</a>
+                <a href="#" onclick="confirmDelete('${trainee.trainee_id}', event)">Delete</a>
+              </div>
+            </div>
+          </td>
+        `;
+
+        row.addEventListener('click', (event) => openDeployModal(event, trainee));
+        tbody.appendChild(row);
+      });
+    }
+
+    function searchTrainees() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const filteredTrainees = trainees.filter(trainee => 
+        trainee.full_name.toLowerCase().includes(searchTerm)
+      );
+      displayTrainees(filteredTrainees);
+    }
+
+    function onSortByProgram() {
+      document.getElementById('programFilter').style.display = '';
+      document.getElementById('sectionFilter').style.display = 'none';
+    }
+
+    function generateReport() {
+      const table = document.querySelector(".table");
+      if (!table) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Data Available',
+          text: 'There is no trainee deployment data to export.',
+          confirmButtonColor: '#028a3d'
+        });
+        return;
+      }
+
+      // Gather data
+      const rows = Array.from(table.querySelectorAll("tbody tr"));
+      if (rows.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Records Found',
+          text: 'There are no trainee deployment records to export.',
+          confirmButtonColor: '#028a3d'
+        });
+        return;
+      }
+
+      // Show export dialog matching the UI design
+      Swal.fire({
+        title: 'Export Trainee List',
+        html: `
+          <div style="margin: 20px 0;">
+            <p style="margin-bottom: 15px; color: #555;">Select the format you want to export:</p>
+            <div style="background: #f8f9fa; padding: 10px; border: 1px solid #e4e4e4; border-radius: 4px;">Excel Format</div>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Export',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#6c5ce7',
+        cancelButtonColor: '#a8a8a8',
+        width: '400px',
+        customClass: {
+          popup: 'export-dialog-popup',
+          title: 'export-dialog-title',
+          htmlContainer: 'export-dialog-container'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Show loading state
+          Swal.fire({
+            title: 'Generating Report',
+            text: 'Please wait while we prepare your report...',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+
+          try {
+            const headers = [
+              'Student ID',
+              'Name',
+              'Program',
+              'Section',
+              'Contact Number',
+              'Email',
+              'Company Assigned',
+              'Nature of Work',
+              'Starting Date',
+              'End Date'
+            ];
+
+            const data = rows.map(row => [
+              row.cells[2].textContent.trim(), // Student ID
+              row.cells[3].textContent.trim(), // Name
+              row.cells[4].textContent.trim(), // Program
+              row.cells[5].textContent.trim(), // Section
+              row.cells[7].textContent.trim(), // Contact Number
+              row.cells[8].textContent.trim(), // Email
+              row.cells[9].textContent.trim() || 'Not Assigned', // Company
+              row.cells[10].textContent.trim() || 'Not Specified', // Nature of Work
+              row.cells[11].textContent.trim() || 'Not Set', // Starting Date
+              row.cells[12].textContent.trim() || 'Not Set' // End Date
+            ]);
+
+            // Generate Excel
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+
+            // Set column widths
+            const colWidths = [
+              { wch: 15 }, // Student ID
+              { wch: 30 }, // Name
+              { wch: 20 }, // Program
+              { wch: 15 }, // Section
+              { wch: 15 }, // Contact Number
+              { wch: 30 }, // Email
+              { wch: 30 }, // Company
+              { wch: 30 }, // Nature of Work
+              { wch: 20 }, // Starting Date
+              { wch: 20 }  // End Date
+            ];
+            ws['!cols'] = colWidths;
+
+            XLSX.utils.book_append_sheet(wb, ws, "Deployment Report");
+            const timestamp = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `trainee_deployment_report_${timestamp}.xlsx`);
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: 'Your Excel report has been generated and downloaded.',
+              confirmButtonColor: '#028a3d'
+            });
+          } catch (error) {
+            console.error('Error generating report:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'An error occurred while generating the report. Please try again.',
+              confirmButtonColor: '#028a3d'
+            });
+          }
+        }
+      });
+    }
+
+    function openDeployModal(event, trainee) {
+      if (event.target.closest('.menu') || event.target.closest('.menu-content')) {
+        return;
+      }
+      currentTrainee = trainee;
+      document.getElementById('deploymentForm').src = `coordinator_FormTraineeDeployment.html?trainee_id=${trainee.trainee_id}`;
+      document.getElementById('DeployModal').style.display = 'flex';
+      disableBackgroundScroll();
+    }
+
+    function edit(traineeId, event) {
+      event.stopPropagation();
+      const trainee = trainees.find(t => t.trainee_id === traineeId);
+      if (trainee) {
+        // Check pre-requirements before allowing edit
+        fetch(`php/check_pre_requirements.php?trainee_id=${traineeId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (!data.success || !data.all_approved) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Pre-Requirements Incomplete',
+                text: 'You cannot edit deployment for this trainee until all pre-requirements are approved.',
+                confirmButtonColor: '#084018'
+              });
+              return;
+            } else {
+              currentTrainee = trainee;
+              document.getElementById('editDeploymentForm').src = `coordinator_FormTraineeEditDeployment.html?trainee_id=${traineeId}`;
+              document.getElementById('editDeployModal').style.display = 'flex';
+              disableBackgroundScroll();
+            }
+          })
+          .catch(error => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to check pre-requirements. Please try again.',
+              confirmButtonColor: '#084018'
+            });
+          });
+      }
+    }
+
+    function toggleMenu(menuElem, event) {
+      event.stopPropagation();
+      menuElem.parentElement.classList.toggle('active');
+    }
+
+    function confirmDelete(traineeId, event) {
+      event.stopPropagation();
+      currentTrainee = trainees.find(t => t.trainee_id === traineeId);
+      document.getElementById('deleteConfirmModal').style.display = 'flex';
+      disableBackgroundScroll();
+    }
+
+    function deleteConfirmed() {
+      if (currentTrainee) {
+        // Call backend to delete trainee
+        fetch('php/delete_trainee.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ trainee_id: currentTrainee.trainee_id })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: 'Trainee deleted successfully.',
+              confirmButtonColor: '#084018'
+            }).then(() => {
+              closeDeleteModal();
+              loadTrainees();
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message || 'Failed to delete trainee.',
+              confirmButtonColor: '#d33'
+            });
+          }
+        })
+        .catch(() => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while deleting trainee.',
+            confirmButtonColor: '#d33'
+          });
+        });
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('DeployModal').style.display = 'none';
+      document.getElementById('editDeployModal').style.display = 'none';
+      enableBackgroundScroll();
+      loadTrainees(); // Reload to reflect any changes
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteConfirmModal').style.display = 'none';
+      enableBackgroundScroll();
+    }
+
+    function disableBackgroundScroll() {
+      document.body.classList.add('no-scroll');
+    }
+
+    function enableBackgroundScroll() {
+      document.body.classList.remove('no-scroll');
+    }
+
+    // Handle dark mode
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

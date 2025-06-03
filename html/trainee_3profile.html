@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta charset="UTF-8" />
+  <title>Trainee Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 1450px;
+      margin: auto;
+      background-color: #fff;
+      border-radius: 25px;
+      box-shadow: 0 0 12px #ccc;
+      overflow: hidden;
+    }
+
+    .header {
+      background-color: #025b2c;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      border-top-left-radius: 25px;
+      border-top-right-radius: 25px;
+    }
+
+    .header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .edit-button {
+      background-color: #888;
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edit-button img {
+      width: 18px;
+      height: 18px;
+    }
+
+    .edit-button:hover {
+      background-color: #dfd61e;
+      color: black;
+    }
+
+    .profile-body {
+      padding: 40px 50px 30px;
+    }
+    
+
+    .top-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 35px;
+    }
+
+    .profile-pic-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin-right: 40px;
+      cursor: pointer;
+    }
+
+    .profile-pic {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: #ccc;
+      object-fit: cover;
+      border: 2px solid #999;
+    }
+
+    .profile-pic-wrapper:hover::after {
+      content: "Click to change";
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      font-size: 12px;
+      text-align: center;
+      border-bottom-left-radius: 50%;
+      border-bottom-right-radius: 50%;
+      padding: 4px 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px 50px;
+      margin-top: 25px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .form-group label {
+      color: #025b2c;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      padding: 12px 40px 12px 12px;
+      font-size: 15px;
+      border: 1px solid #000;
+      border-radius: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .form-group input:disabled {
+      background-color: #f1f1f1;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 36px;
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    .action-buttons {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: none;
+    justify-content: flex-end; 
+    gap: 12px;
+    padding-right: 20px;
+    }
+
+    .cancel-button, .save-button {
+      padding: 12px 26px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .cancel-button {
+      background-color: #ccc;
+    }
+
+    .save-button {
+      background-color: #02602e;
+      color: white;
+    }
+
+    .save-button:hover {
+      background-color: #dfd61e;
+      color: black;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .change-password-fields {
+      display: none;
+      margin-top: 10px;
+      gap: 25px;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal-box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .modal-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .modal-buttons .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .dark-mode {
+    background-color: #292b40;
+    color: #f1f1f1;
+    }
+
+    body.dark-mode table, body-dark-mode th, body-dark-mode td,
+    body.light-mode table, body-light-mode th, body-light-mode td {
+      color: #000 !important;
+    }
+
+    .view-only-field {
+      display: block;
+    }
+
+    .edit-button:hover + .profile-body .view-only-field,
+    .action-buttons[style*="flex"] ~ .profile-body .view-only-field,
+    .edit-mode .view-only-field {
+      display: none;
+    }
+
+    .student-id-section {
+      margin-bottom: 25px;
+      padding: 0 50px;
+    }
+
+    .student-id-section input {
+      background-color: #f1f1f1 !important;
+      cursor: not-allowed;
+    }
+
+    /* Hide student ID section when in edit mode */
+    body.edit-mode .student-id-section {
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Trainee Profile</h2>
+      <button class="edit-button" onclick="toggleEdit()">
+        <img src="icons/edit.png" alt="Edit Icon" />
+        <span>EDIT</span>
+      </button>
+    </div>
+    <div class="profile-body">
+      <div class="top-section">
+        <label for="profile-upload" class="profile-pic-wrapper">
+          <img src="" class="profile-pic" id="profilePreview" alt="Profile Picture" style="display:none;" />
+        </label>
+        <input type="file" id="profile-upload" accept="image/*" onchange="previewImage(event)" />
+
+        <div class="form-group" style="flex: 1;">
+          <label>FULL NAME</label>
+          <input type="text" id="fullName" disabled />
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group"><label>PROGRAM</label><input type="text" id="program" disabled /></div>
+        <div class="form-group"><input type="text" id="section" disabled /></div>
+        <div class="form-group"><label>EMAIL</label><input type="email" id="email" disabled /></div>
+        <div class="form-group"><label>CONTACT NUMBER</label><input type="text" id="contactNumber" disabled /></div>
+        <div class="form-group"><label>SCHOOL</label><input type="text" id="school" disabled /></div>
+        <div class="form-group"><label>STATUS</label><input type="text" id="status" disabled /></div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="cancel-button" onclick="toggleEdit(true)">CANCEL</button>
+      <button class="save-button" onclick="showSaveModal()">SAVE CHANGES</button>
+    </div>
+  </div>
+
+  <div id="saveModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2 style="color: #02602e;">Are you sure you want to save changes</h2>
+      <div class="modal-buttons">
+        <button class="save-button" onclick="saveNow()">Yes</button>
+        <button class="cancel-button" onclick="closeSaveModal()">No</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isEditMode = false;
+    const profileFields = ['fullName', 'program', 'section', 'email', 'contactNumber', 'school', 'status'];
+
+    function toggleEdit(cancel = false) {
+      const actionButtons = document.querySelector('.action-buttons');
+      const editButton = document.querySelector('.edit-button');
+      
+      if (cancel) {
+        isEditMode = false;
+        actionButtons.style.display = 'none';
+        editButton.style.display = 'flex';
+        document.body.classList.remove('edit-mode');
+        loadProfile(); // Reload profile data
+      } else {
+        isEditMode = true;
+        actionButtons.style.display = 'flex';
+        editButton.style.display = 'none';
+        document.body.classList.add('edit-mode');
+        profileFields.forEach(field => {
+          document.getElementById(field).disabled = false;
+        });
+      }
+    }
+
+    function loadProfile() {
+      profileFields.forEach(field => {
+        document.getElementById(field).disabled = true;
+      });
+
+      fetch('php/get_trainee_info.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('Profile data:', data.profile); // Add debugging
+            const profile = data.profile;
+            document.getElementById('fullName').value = profile.full_name || '';
+            document.getElementById('program').value = profile.program || '';
+            document.getElementById('section').value = profile.section || '';
+            document.getElementById('email').value = profile.email || '';
+            document.getElementById('contactNumber').value = profile.contact_number || '';
+            document.getElementById('school').value = profile.school || '';
+            document.getElementById('status').value = profile.status || '';
+
+            if (profile.profile_image) {
+              const preview = document.getElementById('profilePreview');
+              preview.src = profile.profile_image;
+              preview.style.display = '';
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error loading profile:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load profile data',
+            confirmButtonColor: '#d33'
+          });
+        });
+    }
+
+    function previewImage(event) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        const output = document.getElementById('profilePreview');
+        output.src = reader.result;
+        output.style.display = '';
+      }
+      reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function showSaveModal() {
+      document.getElementById("saveModal").style.display = "flex";
+    }
+
+    function saveNow() {
+      console.log('saveNow called');
+      document.getElementById("saveModal").style.display = "none";
+
+      const formData = new FormData();
+      formData.append('full_name', document.getElementById('fullName').value);
+      formData.append('email', document.getElementById('email').value);
+      formData.append('contact_number', document.getElementById('contactNumber').value);
+      formData.append('program', document.getElementById('program').value);
+      formData.append('section', document.getElementById('section').value);
+      formData.append('school', document.getElementById('school').value);
+      formData.append('status', document.getElementById('status').value);
+
+      const fileInput = document.getElementById('profile-upload');
+      if (fileInput && fileInput.files.length > 0) {
+        formData.append('profile_image', fileInput.files[0]);
+      }
+
+      fetch('php/update_trainee_info.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Profile updated successfully!',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          if (data.profile_image) {
+            var preview = document.getElementById('profilePreview');
+            preview.src = data.profile_image;
+            preview.style.display = '';
+            window.parent.postMessage({
+              type: 'UPDATE_PROFILE_IMAGE',
+              imageUrl: data.profile_image + '?t=' + new Date().getTime()
+            }, '*');
+            setTimeout(function() {
+              window.parent.location.reload();
+            }, 500);
+          }
+          toggleEdit(true);
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error updating profile: ' + data.message,
+            confirmButtonColor: '#d33'
+          });
+        }
+      })
+      .catch(error => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred while updating profile.',
+          confirmButtonColor: '#d33'
+        });
+        console.error(error);
+      });
+    }
+
+    function closeSaveModal() {
+      document.getElementById("saveModal").style.display = "none";
+      toggleEdit(true);
+    }
+
+  
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'DARK_MODE') {
+      const isDark = event.data.isDark;
+      if (isDark) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  fetch('php/get_trainee_info.php')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.profile) {
+        document.getElementById('fullName').value = data.profile.full_name || '';
+        document.getElementById('program').value = data.profile.program || '';
+        document.getElementById('section').value = data.profile.section || '';
+        document.getElementById('email').value = data.profile.email || '';
+        document.getElementById('contactNumber').value = data.profile.contact_number || '';
+        document.getElementById('school').value = data.profile.school || '';
+        document.getElementById('status').value = data.profile.status || '';
+        var preview = document.getElementById('profilePreview');
+        if (data.profile.profile_image) {
+          preview.src = data.profile.profile_image;
+          preview.style.display = '';
+        } else {
+          preview.src = '';
+          preview.style.display = 'none';
+        }
+      }
+    });
+});
+
+  </script>
+</body>
+</html>

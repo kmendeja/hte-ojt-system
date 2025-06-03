@@ -1,0 +1,654 @@
+<?php include_once 'php/check_trainee_access.php'; ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Submit Task</title>
+    <!-- SweetAlert2 CSS & JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #0e6c38;
+            color: white;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1350px;
+            margin: 30px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .submission-type {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .submission-type label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: white;
+            border: 2px solid #0e6c38;
+            color: #0e6c38;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .submission-type input[type="radio"] {
+            display: none;
+        }
+
+        .submission-type input[type="radio"]:checked + label {
+            background: #0e6c38;
+            color: white;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            color: #0e6c38;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: bold;
+        }
+
+        .form-field textarea {
+            width: 98%;
+            padding: 12px;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 120px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-field textarea:focus {
+            border-color: #0e6c38;
+            outline: none;
+        }
+
+        .file-upload {
+            border: 2px dashed #ced4da;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #0e6c38;
+            background-color: #f8f9fa;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .file-item .remove-file {
+            color: #dc3545;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .file-item .remove-file:hover {
+            background-color: #ffebee;
+        }
+
+        .submit-btn {
+            background: #0e6c38;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin: 30px auto 0;
+        }
+
+        .submit-btn:hover {
+            background-color: #dfd61e;
+        }
+
+        .submission-history {
+            margin-top: 40px;
+        }
+
+        .submission-history h3 {
+            color: #0e6c38;
+            margin-bottom: 20px;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .history-item .date {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .history-item .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .history-item .files {
+            margin-top: 10px;
+        }
+
+        .history-item .files a {
+            color: #0e6c38;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .history-item .files a:hover {
+            text-decoration: underline;
+        }
+
+        .dark-mode {
+            background-color: #292b40;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode table, 
+        body.dark-mode th, 
+        body.dark-mode td {
+            color: #000 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">SUBMIT TASK</div>
+    <div class="container">
+        <form id="submitTaskForm" enctype="multipart/form-data">
+            <div class="submission-type">
+                <input type="radio" id="weeklyReport" name="submission_type" value="Weekly Report" required checked>
+                <label for="weeklyReport">Weekly Report</label>
+                
+                <input type="radio" id="deliverables" name="submission_type" value="Submission of Deliverables" required>
+                <label for="deliverables">Submission of Deliverables</label>
+            </div>
+
+            <div class="form-section">
+                <h3>Task Details</h3>
+                <div class="form-field">
+                    <label for="taskComment">Description/Comments</label>
+                    <textarea id="taskComment" name="comment" placeholder="Add details about your submission..."></textarea>
+                </div>
+
+                <div class="form-field">
+                    <label>Attachments</label>
+                    <div class="file-upload" onclick="document.getElementById('taskFiles').click()">
+                        <p>Click or drag files here to upload</p>
+                        <p style="font-size: 12px; color: #6c757d;">Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB)</p>
+                        <input type="file" id="taskFiles" name="files[]" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                    </div>
+                    <div id="fileList" class="file-list"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Task</button>
+        </form>
+
+        <div class="submission-history">
+            <h3>Submission History</h3>
+            <div id="taskList"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTasks();
+            setupFileUpload();
+        });
+
+        function setupFileUpload() {
+            const fileInput = document.getElementById('taskFiles');
+            const fileList = document.getElementById('fileList');
+            
+            fileInput.addEventListener('change', function() {
+                fileList.innerHTML = '';
+                Array.from(this.files).forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <span>${file.name}</span>
+                        <span class="remove-file" onclick="removeFile(this)">×</span>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+            });
+
+            // Drag and drop functionality
+            const dropZone = document.querySelector('.file-upload');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropZone.style.borderColor = '#0e6c38';
+                dropZone.style.backgroundColor = '#f8f9fa';
+            }
+
+            function unhighlight(e) {
+                dropZone.style.borderColor = '#ced4da';
+                dropZone.style.backgroundColor = 'white';
+            }
+
+            dropZone.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                
+                // Trigger change event
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        }
+
+        function removeFile(element) {
+            element.parentElement.remove();
+        }
+
+        document.getElementById('submitTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submissionType = document.querySelector('input[name="submission_type"]:checked');
+            if (!submissionType) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Missing Information',
+                    text: 'Please select a submission type'
+                });
+                return;
+            }
+
+            const fileInput = document.getElementById('taskFiles');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Missing Files',
+                    text: 'Please upload at least one file'
+                });
+                return;
+            }
+
+            const comment = document.getElementById('taskComment').value.trim();
+            if (!comment) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Missing Information',
+                    text: 'Please add a description or comment about your submission'
+                });
+                return;
+            }
+
+            const formData = new FormData(this);
+
+            Swal.fire({
+                title: 'Submitting...',
+                text: 'Please wait while we upload your files',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('php/task_submission.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Task submitted successfully'
+                    });
+                    this.reset();
+                    document.getElementById('fileList').innerHTML = '';
+                    loadTasks();
+                } else {
+                    throw new Error(data.message);
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Error submitting task'
+                });
+            });
+        });
+
+        function loadTasks() {
+            fetch('php/get_trainee_tasks.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    if (data.success) {
+                        renderTasks(data.tasks);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load submission history'
+                    });
+                });
+        }
+
+        function renderTasks(tasks) {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+
+            // Filter out tasks with null/empty submission_type or comment
+            const filteredTasks = tasks.filter(task => task.submission_type && task.comment);
+
+            if (!filteredTasks || filteredTasks.length === 0) {
+                taskList.innerHTML = '<p style="text-align: center; color: #6c757d;">No submissions yet</p>';
+                return;
+            }
+
+            filteredTasks.forEach(task => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'history-item';
+
+                const statusClass = {
+                    'Pending': 'status-pending',
+                    'Approved': 'status-approved',
+                    'Rejected': 'status-rejected',
+                    'Needs Revision': 'status-revision'
+                }[task.status] || '';
+
+                const date = new Date(task.date_submitted);
+                const formattedDate = date.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                const fileLinks = task.files ? task.files.map(file => 
+                    `<a href="${file.file_path}" target="_blank" class="file-link">
+                        <i class="fas fa-file"></i> ${file.original_name}
+                    </a>`
+                ).join('') : 'No files';
+
+                const actionButtons = task.status === 'Pending' ? `
+                    <div class="task-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button onclick="editTask(${task.id})" class="action-btn edit-btn" style="
+                            padding: 8px 15px;
+                            background: #0e6c38;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                        ">Edit</button>
+                        <button onclick="unsubmitTask(${task.id})" class="action-btn delete-btn" style="
+                            padding: 8px 15px;
+                            background: #dc3545;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                        ">Unsubmit</button>
+                    </div>
+                ` : '';
+
+                taskDiv.innerHTML = `
+                    <div class="date">${formattedDate}</div>
+                    <span class="status ${statusClass}">${task.status}</span>
+                    <h4>${task.submission_type}</h4>
+                    <p>${task.comment}</p>
+                    <div class="files">
+                        ${fileLinks}
+                    </div>
+                    ${task.remarks ? `
+                    <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                        <strong>Remarks:</strong> ${task.remarks}
+                    </div>
+                    ` : ''}
+                    ${actionButtons}
+                `;
+
+                taskList.appendChild(taskDiv);
+            });
+        }
+
+        // Add these new functions for edit and unsubmit functionality
+        function editTask(taskId) {
+            // First fetch the existing task data
+            fetch('php/get_trainee_tasks.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const task = data.tasks.find(t => t.id === taskId);
+                        if (!task) {
+                            throw new Error('Task not found');
+                        }
+
+                        Swal.fire({
+                            title: 'Edit Submission',
+                            html: `
+                                <textarea id="editComment" class="swal2-textarea" placeholder="Update your comment...">${task.comment}</textarea>
+                                <div style="margin-top: 15px;">
+                                    <p>Current Files:</p>
+                                    <div id="currentFiles" style="margin-bottom: 10px;">
+                                        ${task.files ? task.files.map(file => 
+                                            `<div style="margin: 5px 0;">
+                                                <a href="${file.file_path}" target="_blank">${file.original_name}</a>
+                                            </div>`
+                                        ).join('') : 'No files'}
+                                    </div>
+                                    <p>Add New Files (optional):</p>
+                                    <input type="file" id="editFiles" multiple class="swal2-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                </div>
+                            `,
+                            showCancelButton: true,
+                            confirmButtonText: 'Update',
+                            confirmButtonColor: '#0e6c38',
+                            preConfirm: () => {
+                                const formData = new FormData();
+                                formData.append('action', 'update');
+                                formData.append('task_id', taskId);
+                                formData.append('comment', document.getElementById('editComment').value);
+
+                                const files = document.getElementById('editFiles').files;
+                                // If new files are uploaded, replace old files
+                                if (files.length > 0) {
+                                    formData.append('keep_existing_files', 'false');
+                                    for(let i = 0; i < files.length; i++) {
+                                        formData.append('files[]', files[i]);
+                                    }
+                                } else {
+                                    // No new files, keep old files
+                                    formData.append('keep_existing_files', 'true');
+                                }
+
+                                return fetch('php/task_submission.php', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (!data.success) throw new Error(data.message);
+                                    return data;
+                                });
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Swal.fire('Updated!', 'Your submission has been updated.', 'success');
+                                loadTasks();
+                            }
+                        }).catch(error => {
+                            Swal.fire('Error', error.message, 'error');
+                        });
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', error.message, 'error');
+                });
+        }
+
+        function unsubmitTask(taskId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This will remove your submission. You can submit again later.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, unsubmit it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('php/task_submission.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'action': 'delete',
+                            'task_id': taskId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Unsubmitted!', 'Your submission has been removed.', 'success');
+                            loadTasks();
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error', error.message, 'error');
+                    });
+                }
+            });
+        }
+
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'DARK_MODE') {
+                const isDark = event.data.isDark;
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#047a3a"/>
+  <title>Main Login</title>
+  <link rel="stylesheet" href="mobile.css">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+  body {
+    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #047a3a;
+  }
+  /* Background image and overlay */
+  .background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    background: url('icons/login_background.png') center center/cover no-repeat;
+    animation: zoomEffect 12s ease-in-out infinite;
+  }
+  @keyframes zoomEffect {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  .background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(11, 146, 72, 0.155);
+    z-index: 1;
+  }
+  .container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    position: relative;
+    z-index: 3;
+  }
+  .panel-outer, .panel-wrapper {
+    background: transparent !important;
+  }
+  .panel-wrapper {
+    width: 900px;
+    height: 520px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 32px 0 #064a2520;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    transition: box-shadow 0.3s;
+    will-change: transform;
+  }
+  .left-panel {
+    width: 50%;
+    background: linear-gradient(135deg, #0c753bfc 70%, #096e35 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 24px 40px 24px;
+    position: relative;
+    z-index: 2;
+    transition: background 0.3s;
+    border-top-left-radius: 24px;
+    border-bottom-left-radius: 24px;
+    min-height: 100%;
+  }
+   .left-panel .logo {
+    width: 320px;
+    height: 320px;
+    margin-bottom: -5px;
+    background: none;
+    border-radius: 65%;
+    box-shadow: 0 0 32px 0 #118d4955, 0 4px 32px 0 #064a2520;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.4s, transform 0.3s;
+  }
+  .left-panel .logo:hover {
+    box-shadow: 0 0 48px 8px #32aa68aa, 0 8px 32px 0 #064a2540;
+    transform: scale(1.03);
+  }
+  .left-panel h2 {
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 0px;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-top: 12px;
+  }
+  .left-panel p {
+    font-size: 16px;
+    opacity: 0.92;
+    max-width: 260px;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .left-panel button {
+    background: transparent;
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 24px;
+    padding: 10px 36px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+  .left-panel button:hover {
+    background: #fff;
+    color: #064a25;
+  }
+  .left-panel img {
+    width: 340px !important;
+    height: 360px !important;
+    object-fit: contain;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  .right-panel {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    border-top-right-radius: 24px;
+    border-bottom-right-radius: 24px;
+  }
+  .form-box {
+    width: 340px;
+    min-width: 320px;
+    padding: 38px 32px 32px 32px;
+    background: rgba(255,255,255,0.98);
+    border-radius: 18px;
+    box-shadow: 0 2px 24px 0 #064a2520;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 30px;
+    transition: all 0.6s cubic-bezier(.77,0,.18,1);
+    justify-content: center;
+    position: absolute;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: formGlow 3s ease-in-out infinite alternate;
+  }
+  #loginForm {
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+  }
+  .form-box h4 {
+    color: #064a25;
+    margin-bottom: 18px;
+    font-size: 21px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    font-family: 'Segoe UI Semibold', Arial, sans-serif;
+    text-shadow: 0 1px 2px rgba(6, 74, 37, 0.1);
+  }
+  label {
+    display: block;
+    text-transform: uppercase;
+    font-size: 13px;
+    margin-top: 8px;
+    margin-bottom: 3px;
+    text-align: left;
+    width: 100%;
+    color: #064a25;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  input {
+    width: 100%;
+    padding: 10px 14px;
+    margin: 8px 0 0 0;
+    border-radius: 20px;
+    border: 2px solid #064a25;
+    font-size: 15px;
+    background: rgba(248, 248, 248, 0.9);
+    color: #064a25;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0 0 #064a25;
+    backdrop-filter: blur(5px);
+  }
+  input:focus {
+    border: 2px solid #0e7a3c;
+    box-shadow: 0 0 0 2px #064a2533,
+                0 0 15px rgba(6, 74, 37, 0.1);
+    transform: translateY(-1px);
+  }
+  .password-container {
+    position: relative;
+    width: 100%;
+  }
+  .password-container input {
+    padding-right: 40px;
+  }
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    opacity: 0.7;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .password-toggle:hover {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  .reset-password-link {
+    text-align: right;
+    font-size: 12px;
+    font-style: italic;
+    color: #064a25;
+    cursor: pointer;
+    margin-top: 5px;
+    text-decoration: underline;
+    transition: opacity 0.5s ease-in-out;
+    width: 100%;
+  }
+  .form-box button[type="submit"] {
+    background: linear-gradient(90deg, #064a25 60%, #0e7a3c 100%);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 20px;
+    margin-top: 18px;
+    padding: 10px;
+    width: 100%;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px 0 #064a2520;
+  }
+  .form-box button[type="submit"]:hover {
+    background: linear-gradient(90deg, #0e7a3c 60%, #064a25 100%);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 16px 0 #064a2540;
+  }
+  @media (max-width: 900px) {
+    .panel-wrapper {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+    }
+    .form-box {
+      margin: 0 10px;
+      width: 95vw;
+      min-width: unset;
+    }
+  }
+  @keyframes formGlow {
+    0% {
+      box-shadow: 0 2px 24px 0 #064a2520,
+                  0 0 20px rgba(6, 74, 37, 0.1);
+    }
+    100% {
+      box-shadow: 0 2px 24px 0 #064a2520,
+                  0 0 30px rgba(6, 74, 37, 0.2);
+    }
+  }
+  .aboutus-btn {
+    position: fixed;
+    top: 32px;
+    right: 40px;
+    z-index: 100;
+    background: linear-gradient(90deg, #064a25 60%, #0e7a3c 100%);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 28px 12px 18px;
+    font-size: 17px;
+    font-weight: 600;
+    box-shadow: 0 2px 12px 0 #064a2520;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+    outline: none;
+    letter-spacing: 0.5px;
+  }
+  .aboutus-btn:hover {
+    background: linear-gradient(90deg, #0e7a3c 60%, #064a25 100%);
+    box-shadow: 0 4px 24px 0 #064a2540;
+    transform: translateY(-2px) scale(1.04);
+  }
+  .aboutus-btn img {
+    width: 22px;
+    height: 22px;
+    margin-right: 4px;
+    filter: brightness(0) invert(1);
+  }
+  @media (max-width: 600px) {
+    .aboutus-btn {
+      top: 12px;
+      right: 10px;
+      padding: 10px 18px 10px 12px;
+      font-size: 15px;
+    }
+    .aboutus-btn img {
+      width: 18px;
+      height: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="background-image"></div>
+<div class="background-overlay"></div>
+<div class="container">
+  <div class="panel-outer">
+    <div class="panel-wrapper" id="panelWrapper">
+      <!-- Left Panel -->
+      <div class="left-panel" id="leftPanel">
+        <div class="logo">
+          <img src="icons/logo_cha1.png" alt="Logo" style="width:300px;height:300px;" />
+        </div>
+        <h2 id="leftTitle">Welcome Back!</h2>
+        <p id="leftDesc">To keep connected with us please login with your personal info</p>
+      </div>
+      <!-- Right Panel (Form) -->
+      <div class="right-panel">
+        <form class="form-box" id="loginForm" method="POST" action="php/main_login.php" autocomplete="off">
+          <h4>Log in your account</h4>
+          <label for="email">Username</label>
+          <input type="text" id="email" name="username" placeholder="Enter your username" autocomplete="off" required />
+          <label for="pass">Password</label>
+          <div class="password-container">
+            <input type="password" id="pass" name="password" placeholder="Enter your password" autocomplete="new-password" required />
+            <img src="icons/eyes-close.png" id="togglePassword" class="password-toggle" alt="Toggle Password" />
+          </div>
+          <span class="reset-password-link" id="resetPasswordLink" onclick="window.location.href='main_resetpassword.html'">Reset Password?</span>
+          <button type="submit">LOG IN</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- About Us Floating Button -->
+<button class="aboutus-btn" onclick="window.open('main_aboutus.html', '_blank')">
+  <img src="icons/profile.png" alt="About Us" />
+  About Us
+</button>
+<script>
+  // Password toggle
+  const passwordInput = document.getElementById('pass');
+  const togglePassword = document.getElementById('togglePassword');
+  togglePassword.addEventListener('click', function() {
+    const isPassword = passwordInput.type === 'password';
+    passwordInput.type = isPassword ? 'text' : 'password';
+    togglePassword.src = isPassword ? 'icons/eyes-open.png' : 'icons/eyes-close.png';
+  });
+
+  // Handle URL parameters for error messages
+  window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    const attempts = urlParams.get('attempts');
+    
+    let errorMessage = '';
+    
+    if (error === 'invalid' && attempts) {
+      errorMessage = `Invalid password. ${attempts} attempts remaining before account lockout.`;
+    } else if (error === 'locked') {
+      errorMessage = 'Your account has been locked due to too many failed attempts. Please reset your password to unlock your account.';
+    } else if (error === 'notfound') {
+      errorMessage = 'Username not found.';
+    } else if (error === 'invalid') {
+      errorMessage = 'Invalid username or password.';
+    } else if (error === 'server') {
+      errorMessage = 'Server error. Please try again later.';
+    } else if (error === 'archived') {
+      errorMessage = 'Your account is currently inactive. Please contact the administrator to restore your account access.';
+    }
+    
+    if (errorMessage) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.style.color = '#ff0000';
+      errorDiv.style.marginBottom = '10px';
+      errorDiv.style.textAlign = 'center';
+      errorDiv.textContent = errorMessage;
+      
+      const form = document.querySelector('.form-box');
+      form.insertBefore(errorDiv, form.querySelector('button'));
+    }
+  };
+</script>
+<script src="mobile.js"></script>
+</body>
+</html>

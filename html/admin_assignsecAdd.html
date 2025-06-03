@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SECTION ASSIGNMENT-Add Form</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      background-color: #3b463e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .form-container {
+      background-color: #084018;
+      color: white;
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-header {
+      background-color: white;
+      color: #084018;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    select, input[type="text"] {
+      padding: 0.75rem;
+      border: 2px solid #f5cc00;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background-color: white;
+      color: black;
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
+    .radio-group-horizontal {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      padding: 0.75rem;
+      border: 2px solid #f5cc00;
+      border-radius: 0.5rem;
+      background-color: white;
+      color: black;
+    }
+
+    .radio-group-horizontal label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 0.10rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: flex-end;
+    }
+
+    .clear-btn, .confirm-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .clear-btn {
+      background-color: #6b7280;
+      color: white;
+    }
+
+    .confirm-btn {
+      background-color: #f5cc00;
+      color: black;
+    }
+
+    @media (max-width: 768px) {
+      .form-container {
+        padding: 1rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .radio-group-horizontal {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <form id="addAssignForm">
+      <div class="form-header">SECTION ASSIGNMENT</div>
+      <div class="form-grid">
+        <!-- Coordinator Dropdown -->
+        <div class="form-group">
+          <label for="coordinator">COORDINATOR:</label>
+          <select id="coordinator" name="coordinator_id">
+            <option value="" disabled selected hidden>Select Coordinator</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <!-- Program Radio Buttons -->
+        <div class="form-group">
+          <label>PROGRAM:</label>
+          <div class="radio-group-horizontal">
+            <label><input type="radio" name="program" value="BSIT"> BSIT</label>
+            <label><input type="radio" name="program" value="BSCS"> BSCS</label>
+          </div>
+        </div>
+        <!-- Section Input -->
+        <div class="form-group">
+          <label>SECTION:</label>
+          <select id="section" name="section">
+            <option value="" disabled selected hidden>Select Section</option>
+          </select>
+        </div>
+      </div>
+      <div class="button-group">
+        <button type="button" class="clear-btn" onclick="clearForm()">CLEAR</button>
+        <button type="submit" class="confirm-btn">CONFIRM</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Fetch coordinators for dropdown
+    function loadCoordinators() {
+      fetch('php/admin_list_coordinators.php?search=&sort=full_name&order=ASC')
+        .then(res => res.json())
+        .then(data => {
+          const select = document.getElementById('coordinator');
+          select.innerHTML = '<option value="" disabled>Select Coordinator</option>';
+          if (data.success && data.coordinators.length) {
+            data.coordinators.forEach(c => {
+              const opt = document.createElement('option');
+              opt.value = c.coordinator_id;
+              opt.textContent = c.full_name;
+              select.appendChild(opt);
+            });
+          }
+        });
+    }
+
+    // Load sections based on selected program
+    function loadSections(program) {
+      fetch('php/get_available_sections.php?program=' + encodeURIComponent(program))
+        .then(res => res.json())
+        .then(data => {
+          const select = document.getElementById('section');
+          select.innerHTML = '<option value="" disabled selected hidden>Select Section</option>';
+          if (data.success && data.sections.length) {
+            data.sections.forEach(section => {
+              const opt = document.createElement('option');
+              opt.value = section;
+              opt.textContent = section;
+              select.appendChild(opt);
+            });
+          } else {
+            select.innerHTML = '<option value="" disabled selected>No sections available</option>';
+          }
+        });
+    }
+
+    // Add event listeners
+    document.querySelectorAll('input[name="program"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          loadSections(e.target.value);
+        }
+      });
+    });
+
+    window.addEventListener('DOMContentLoaded', loadCoordinators);
+
+    function clearForm() {
+      document.getElementById('coordinator').selectedIndex = 0;
+      document.querySelectorAll('input[name="program"]').forEach(r => r.checked = false);
+      const sectionSelect = document.getElementById('section');
+      sectionSelect.innerHTML = '<option value="" disabled selected hidden>Select Section</option>';
+    }
+
+    const form = document.getElementById('addAssignForm');
+    form.onsubmit = function(e) {
+      e.preventDefault();
+      const coordinator_id = document.getElementById('coordinator').value;
+      const program = form.program.value;
+      const section = document.getElementById('section').value;
+      if (!coordinator_id || !program || !section) {
+        Swal.fire('Error', 'All fields are required.', 'error');
+        return;
+      }
+      const fd = new FormData();
+      fd.append('action', 'add');
+      fd.append('coordinator_id', coordinator_id);
+      fd.append('program', program);
+      fd.append('section', section);
+      fetch('php/admin_assignsec.php', {
+        method: 'POST',
+        body: fd
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          window.parent.postMessage({ type: 'ASSIGNMENT_UPDATED' }, '*');
+        } else {
+          Swal.fire('Error', data.message || 'An error occurred.', 'error');
+        }
+      })
+      .catch(() => Swal.fire('Error', 'Failed to add assignment.', 'error'));
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+.certificate-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f6f8f7;
+}
+
+.certificate-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 6px 32px rgba(14, 108, 56, 0.10), 0 1.5px 6px rgba(0,0,0,0.04);
+    padding: 48px 36px 36px 36px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+}
+
+.certificate-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.certificate-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 2px 8px rgba(14, 108, 56, 0.10));
+}
+
+.certificate-header h1 {
+    color: #0e6c38;
+    font-size: 2.1em;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.certificate-body {
+    margin-top: 10px;
+}
+
+#traineeName {
+    color: #0e6c38;
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-bottom: 12px;
+    margin-top: 0;
+    letter-spacing: 0.2px;
+}
+
+.certificate-status {
+    font-size: 1.1em;
+    margin-bottom: 24px;
+    min-height: 32px;
+}
+
+.success-msg {
+    color: #0e6c38;
+    font-weight: 600;
+    background: #eafbe7;
+    padding: 8px 18px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.pending-msg {
+    color: #b97a00;
+    font-weight: 500;
+    background: #fffbe6;
+    padding: 8px 18px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #0e6c38;
+    color: #fff;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(14, 108, 56, 0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+    background: #0a4f2a;
+    box-shadow: 0 4px 16px rgba(14, 108, 56, 0.13);
+}
+
+@media (max-width: 600px) {
+    .certificate-card {
+        padding: 28px 8px 24px 8px;
+        max-width: 98vw;
+    }
+    .certificate-header h1 {
+        font-size: 1.3em;
+    }
+    #traineeName {
+        font-size: 1.1em;
+    }
+} 

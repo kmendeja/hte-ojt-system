@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#047a3a"/>
+  <title>Verify OTP</title>
+  <style>
+    body {
+      min-height: 100vh;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #047a3a;
+    }
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      background: url('icons/login_background.png') center center/cover no-repeat;
+      animation: zoomEffect 12s ease-in-out infinite;
+    }
+    @keyframes zoomEffect {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(11, 146, 72, 0.155);
+      z-index: 1;
+    }
+    .container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      position: relative;
+      z-index: 3;
+    }
+    .otp-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 22px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      width: 410px;
+      max-width: 95vw;
+      padding: 38px 32px 32px 32px;
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .close-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      cursor: pointer;
+      font-size: 20px;
+      background: #f1f1f1;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      border-radius: 50%;
+      font-weight: bold;
+      color: #064a25;
+      transition: all 0.3s ease;
+      z-index: 2;
+    }
+    .close-btn:hover {
+      background: #e0e0e0;
+      transform: rotate(90deg);
+    }
+    .otp-icon {
+      margin-bottom: 18px;
+      margin-top: 2px;
+    }
+    .otp-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #064a25;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .otp-desc {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 22px;
+    }
+    #timer {
+      font-size: 15px;
+      color: #064a25;
+      font-weight: 600;
+      margin-bottom: 18px;
+      background: rgba(6, 74, 37, 0.07);
+      border-radius: 8px;
+      padding: 6px 0;
+      width: 100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .otp-input-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 18px 0 18px 0;
+      position: relative;
+    }
+    .otp-input-row input {
+      width: 48px;
+      height: 48px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 600;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      outline: none;
+      background: #f8f8f8;
+      transition: all 0.2s;
+      box-shadow: none;
+    }
+    .otp-input-row input:focus {
+      border-color: #0e7a3c;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(6, 74, 37, 0.10);
+    }
+    .otp-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 48px;
+      margin-left: 8px;
+      vertical-align: middle;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .otp-check.visible {
+      opacity: 1;
+    }
+    #error {
+      color: #dc3545;
+      font-size: 14px;
+      margin: 10px 0 0 0;
+      padding: 8px;
+      background: transparent;
+      border-radius: 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .otp-btn {
+      background: linear-gradient(135deg, #064a25 0%, #0e7a3c 100%);
+      color: #fff;
+      font-weight: 600;
+      font-size: 16px;
+      border: none;
+      padding: 13px 0;
+      border-radius: 12px;
+      width: 100%;
+      margin-top: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .otp-btn:disabled {
+      background: #bfe5d0;
+      color: #fff;
+      cursor: not-allowed;
+      box-shadow: none;
+      border: none;
+    }
+    .otp-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0e7a3c 0%, #064a25 100%);
+      box-shadow: 0 6px 20px rgba(6, 74, 37, 0.13);
+    }
+    .resend-btn {
+      background: none;
+      color: #0e7a3c;
+      border: none;
+      font-weight: 600;
+      font-size: 15px;
+      border-radius: 0;
+      padding: 0;
+      width: auto;
+      margin: 0 0 8px 0;
+      cursor: pointer;
+      transition: color 0.2s;
+      text-transform: none;
+      letter-spacing: 0;
+      text-align: right;
+      float: right;
+      display: inline;
+      text-decoration: underline;
+    }
+    .resend-btn:hover {
+      color: #047a3a;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="background-image"></div>
+  <div class="background-overlay"></div>
+  <div class="container">
+    <div class="otp-card">
+      <div class="close-btn" onclick="window.location.href='main_resetpassword.html'">×</div>
+      <div class="otp-icon">
+        <!-- Simple SVG icon, green -->
+        <img src="icons/envelope.png" alt="Verification" style="width:80px;display:block;margin:0 auto 20px auto;" />
+      </div>
+      <div class="otp-title">Verification Code</div>
+      <div class="otp-desc">Enter the 6-digit code sent to your email address to continue.</div>
+      <div id="timer">05:00</div>
+      <form id="otpForm" action="php/verify_otp.php" method="POST" autocomplete="off" style="width:100%;">
+        <div class="otp-input-row">
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <span class="otp-check" id="otpCheck">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="12" fill="#0e7a3c"/>
+              <path d="M7 13.5L11 17L17 10.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </div>
+        <input type="hidden" name="otp" id="otpValue">
+        <button type="button" class="resend-btn" id="resendBtn" onclick="window.location.href='php/resend_otp.php'">Resend Code</button>
+        <button type="submit" class="otp-btn" id="confirmBtn" disabled>Confirm Code</button>
+        <div id="error">
+          <?php
+            session_start();
+            if (isset($_SESSION['error'])) {
+              echo $_SESSION['error'];
+              unset($_SESSION['error']);
+            }
+          ?>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const inputs = document.querySelectorAll('.otp-input-row input');
+    const otpCheck = document.getElementById('otpCheck');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const timerDisplay = document.getElementById('timer');
+    let timer = 300; // 5 minutes
+
+    // OTP input navigation and check
+    inputs.forEach((input, idx) => {
+      input.addEventListener('input', (e) => {
+        // Only allow numbers
+        if (!/^[0-9]$/.test(input.value)) {
+          input.value = '';
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid Input',
+            text: 'Only numbers are allowed.',
+            toast: true,
+            position: 'top',
+            showConfirmButton: false,
+            timer: 1500,
+            width: '260px',
+            customClass: { popup: 'swal2-border-radius' }
+          });
+          return;
+        }
+        if (input.value && idx < inputs.length - 1) {
+          inputs[idx + 1].focus();
+        }
+        checkFilled();
+      });
+      input.addEventListener('keydown', (e) => {
+        // Block non-numeric keys except Backspace, Tab, Arrow keys
+        if (
+          !(
+            (e.key >= '0' && e.key <= '9') ||
+            e.key === 'Backspace' ||
+            e.key === 'Tab' ||
+            e.key.startsWith('Arrow')
+          )
+        ) {
+          e.preventDefault();
+          // Only show error if not Backspace, Tab, or Arrow keys
+          if (!(e.key === 'Backspace' || e.key === 'Tab' || e.key.startsWith('Arrow'))){
+            Swal.fire({
+              icon: 'error',
+              title: 'Invalid Input',
+              text: 'Only numbers are allowed.',
+              toast: true,
+              position: 'top',
+              showConfirmButton: false,
+              timer: 1500,
+              width: '260px',
+              customClass: { popup: 'swal2-border-radius' }
+            });
+          }
+        }
+        if (e.key === 'Backspace' && !input.value && idx > 0) {
+          inputs[idx - 1].focus();
+        }
+      });
+    });
+
+    function checkFilled() {
+      const filled = Array.from(inputs).every(input => input.value);
+      if (filled) {
+        otpCheck.classList.add('visible');
+        confirmBtn.disabled = false;
+      } else {
+        otpCheck.classList.remove('visible');
+        confirmBtn.disabled = true;
+      }
+    }
+
+    // AJAX OTP verification
+    document.getElementById('otpForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const otp = Array.from(inputs).map(input => input.value).join('');
+      if (otp.length !== 6) return;
+      document.getElementById('otpValue').value = otp;
+      // AJAX POST to verify_otp.php
+      fetch('php/verify_otp.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `otp=${otp}`
+      })
+      .then(res => res.text())
+      .then(response => {
+        if (response.includes('Location: ../main_newpassword.html')) {
+          window.location.href = 'main_newpassword.html';
+        } else {
+          // Mark OTP as used (auto-expire) via another AJAX call
+          fetch('html/php/expire_otp.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `otp=${otp}`
+          });
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid OTP',
+            text: 'The code is incorrect or expired.',
+            toast: true,
+            position: 'top',
+            showConfirmButton: false,
+            timer: 1800,
+            width: '260px',
+            customClass: { popup: 'swal2-border-radius' }
+          });
+          setTimeout(() => window.location.reload(), 1800);
+        }
+      })
+      .catch(() => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Something went wrong. Please try again.',
+          toast: true,
+          position: 'top',
+          showConfirmButton: false,
+          timer: 1800,
+          width: '260px',
+          customClass: { popup: 'swal2-border-radius' }
+        });
+      });
+    });
+
+    // Timer logic
+    function updateTimer() {
+      let minutes = Math.floor(timer / 60);
+      let seconds = timer % 60;
+      timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      if (timer > 0) {
+        timer--;
+        setTimeout(updateTimer, 1000);
+      } else {
+        timerDisplay.textContent = "Code expired!";
+        timerDisplay.style.color = "#dc3545";
+        confirmBtn.disabled = true;
+      }
+    }
+    updateTimer();
+  </script>
+</body>
+</html> 

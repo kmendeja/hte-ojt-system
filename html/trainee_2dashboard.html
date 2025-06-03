@@ -1,0 +1,695 @@
+<?php include_once 'php/check_trainee_access.php'; ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>Student Dashboard</title>
+    <script src="js/trainee_restrictions.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        background-color: #02602e;
+        color: white;
+        width: 95%;
+        max-width: 1350px;
+        margin: 30px auto;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        border-bottom: 2px solid white;
+        padding-bottom: 15px;
+      }
+
+      .profile {
+        display: flex;
+        align-items: center;
+      }
+
+      .profile img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin-right: 20px;
+      }
+
+      .profile-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px 40px;
+        align-items: start;
+        width: 100%;
+      }
+
+      .profile-info h2 {
+        grid-column: 1 / -1;
+        margin-bottom: 0.2em;
+      }
+
+      .profile-info p {
+        margin: 5px 0 0;
+        font-size: 15px;
+        line-height: 1.4;
+        color: white;
+      }
+
+      .content-container {
+        background-color: #02602e;
+        width: 95%;
+        max-width: 1350px;
+        margin: 0 auto 30px;
+        padding: 20px;
+        border-radius: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .worklog-section,
+      .percentage-section {
+        background-color: white;
+        color: black;
+        padding: 20px;
+        border-radius: 15px;
+        flex: 1;
+        min-width: 600px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .worklog-section:hover,
+      .percentage-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(2, 96, 46, 0.2);
+      }
+
+      .worklog-header {
+        color: #02602e;
+        font-size: 20px;
+        font-weight: bold;
+        border-bottom: 2px solid;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+      }
+
+      .btn-container {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        background-color: #014b22;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn:hover {
+        background-color: #023e1b;
+      }
+
+      .percentage-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(#dfd61e 0%, #dcdcdc 0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #02602e;
+        font-size: 20px;
+        transition: background 1s ease-in-out;
+      }
+
+      .percent-text {
+        text-align: center;
+        font-size: 14px;
+        color: #02602e;
+        font-weight: bold;
+      }
+
+      @media (max-width: 768px) {
+        .content-container {
+          flex-direction: column;
+        }
+
+        .btn-container {
+          flex-direction: column;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .profile-info {
+          grid-template-columns: 1fr;
+        }
+      }
+
+    .dark-mode {
+    background-color: #292b40;
+    color: #f1f1f1;
+    }
+
+      .dashboard-row {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .card {
+        background: white;
+        color: #02602e;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(2,96,46,0.08);
+        padding: 20px;
+        min-width: 250px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .clock-card #digitalClock {
+        font-size: 48px;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+      }
+      .clock-card #clockDate {
+        font-size: 18px;
+        color: #555;
+      }
+      .calendar-card {
+        min-width: 250px;
+      }
+      .calendar-table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      .calendar-table th, .calendar-table td {
+        width: 32px;
+        height: 32px;
+        text-align: center;
+        border-radius: 8px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+      }
+      .calendar-table th {
+        color: #014b22;
+        font-weight: bold;
+        background: #f4f4f4;
+      }
+      .calendar-table td.today {
+        background: #dfd61e;
+        color: #02602e;
+        font-weight: bold;
+      }
+      .calendar-table td:hover {
+        background: #02602e22;
+      }
+      .time-btn {
+        position: relative;
+        background: linear-gradient(90deg, #dfd61e 0%, #02602e 100%);
+        box-shadow: 0 4px 20px #02602e55;
+        font-size: 18px;
+        border-radius: 50px;
+        transition: transform 0.1s, box-shadow 0.1s;
+        animation: pulse 2s infinite;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: bold;
+        padding: 12px 28px;
+      }
+      .time-btn:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 10px #02602e99;
+      }
+      @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 #dfd61e55; }
+        50% { box-shadow: 0 0 0 10px #dfd61e22; }
+      }
+      .btn-icon {
+        font-size: 22px;
+        margin-right: 4px;
+      }
+
+      .weekend-warning-popup {
+        background: #fff3cd !important;
+        border: 2px solid #dfd61e !important;
+        border-radius: 15px !important;
+      }
+
+      .weekend-warning-title {
+        color: #856404 !important;
+        font-weight: bold !important;
+        font-size: 1.5em !important;
+      }
+
+      .weekend-warning-content {
+        color: #856404 !important;
+        font-size: 1.1em !important;
+      }
+
+      .swal2-icon.swal2-warning {
+        border-color: #dfd61e !important;
+        color: #dfd61e !important;
+      }
+
+      .swal2-confirm.swal2-styled {
+        background-color: #dfd61e !important;
+        color: #000 !important;
+        font-weight: bold !important;
+        padding: 12px 30px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+      }
+
+      .swal2-confirm.swal2-styled:hover {
+        background-color: #c4b91a !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+      }
+
+    </style>
+</head>
+<body>
+    <!-- Profile Info -->
+    <div class="container">
+      <div class="header">
+        <div class="profile">
+          <img id="dashboardProfileImage" src="icons/icon_login.png" alt="Profile" />
+          <div class="profile-info">
+            <h2 id="traineeName">Loading...</h2>
+            <div>
+              <p><span id="traineeId"></span></p>
+              <p><span id="traineeProgram"></span></p>
+              <p><span id="traineeSection"></span></p>
+              <p><span id="traineeCompany"></span></p>
+            </div>
+            <div>
+              <p><span id="traineeSchool"></span></p>
+              <p><span id="traineeStatus"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Worklog Buttons + Percentage -->
+    <div class="content-container">
+      <div class="dashboard-row" style="display: flex; gap: 20px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap;">
+        <div class="card clock-card" style="background: white; color: #02602e; border-radius: 15px; box-shadow: 0 0 15px rgba(2,96,46,0.08); padding: 20px; min-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div id="digitalClock" style="font-size: 48px; font-family: 'Courier New', Courier, monospace; font-weight: bold; letter-spacing: 2px; margin-bottom: 5px;"></div>
+          <div id="clockDate" style="font-size: 18px; color: #555;"></div>
+        </div>
+        <div class="card calendar-card" style="background: white; color: #02602e; border-radius: 15px; box-shadow: 0 0 15px rgba(2,96,46,0.08); padding: 20px; min-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div id="calendarHeader" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;"></div>
+          <div id="simpleCalendar"></div>
+        </div>
+        <div class="worklog-section">
+          <div class="worklog-header">WORKLOG</div>
+          <div class="worklog-info">
+            <p><span>Total Hours Worked:</span> <span id="totalHours">0</span></p>
+            <p><span>Remaining Hours:</span> <span id="remainingHours">486</span></p>
+          </div>
+          <div class="btn-container">
+            <button class="btn time-btn" id="btnTimeIn" disabled>
+              <span class="btn-icon">⏰</span> Time In
+            </button>
+            <button class="btn time-btn" id="btnTimeOut" disabled>
+              <span class="btn-icon">🕒</span> Time Out
+            </button>
+          </div>
+          <div id="restrictionMessage" class="restriction-message" style="display: none; color: #ff4444; margin-top: 10px; font-weight: bold;"></div>
+        </div>
+      </div>
+
+      <div class="percentage-section">
+        <div class="percentage-wrapper">
+          <div class="circle">0%</div>
+          <div class="percent-text">PERCENTAGE TO COMPLETE THE TRAINING</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+      document.addEventListener("DOMContentLoaded", async function () {
+        // Check restrictions first
+        const isRestricted = await checkTraineeRestrictions();
+        if (isRestricted) {
+          return; // Stop execution if restricted
+        }
+
+        const circle = document.querySelector(".circle");
+        const totalHoursEl = document.getElementById("totalHours");
+        const remainingHoursEl = document.getElementById("remainingHours");
+        let requiredHours = 486; // default
+        const traineeNameEl = document.getElementById("traineeName");
+        const traineeDetailsEl = document.getElementById("traineeDetails");
+        const btnTimeIn = document.getElementById("btnTimeIn");
+        const btnTimeOut = document.getElementById("btnTimeOut");
+        const restrictionMessage = document.getElementById("restrictionMessage");
+        let traineeId = '';
+    
+        function formatTimePhilippines(timeString) {
+          if (!timeString || timeString === 'N/A') return "—";
+          let [hours, minutes] = timeString.split(':');
+          if (typeof minutes === 'undefined') return timeString;
+          hours = parseInt(hours, 10);
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          hours = hours % 12;
+          if (hours === 0) hours = 12;
+          return `${hours}:${minutes.padStart(2, '0')} ${ampm}`;
+        }
+    
+        function animateCircle(percent) {
+          let current = parseInt(circle.innerText) || 0;
+          const speed = 15;
+          const animate = setInterval(() => {
+            if (current === percent) {
+              clearInterval(animate);
+            } else {
+              current = percent > current ? current + 1 : current - 1;
+              circle.innerText = current + "%";
+              circle.style.background = `conic-gradient(#dfd61e ${current}%, #dcdcdc 0)`;
+            }
+          }, speed);
+        }
+    
+        async function checkPreRequirements() {
+          try {
+            const res = await fetch("php/check_pre_requirements.php");
+            const data = await res.json();
+            
+            if (data.redirect) {
+              window.location.href = data.redirect;
+              return;
+            }
+            
+            let canStartOJT = false;
+            let restrictionMsg = "";
+            
+            if (!data.success) {
+              restrictionMsg = "Failed to check requirements status.";
+            } else if (!data.all_approved) {
+              restrictionMsg = "You cannot start your OJT until all pre-requirements are approved. ";
+              if (data.has_pending) {
+                restrictionMsg += "Some of your requirements are still pending approval.";
+              } else if (data.has_rejected) {
+                restrictionMsg += "Some of your requirements have been rejected. Please resubmit them.";
+              } else {
+                restrictionMsg += "Please submit all required pre-requirements.";
+              }
+            } else {
+              // Only check deployment if pre-requirements are approved
+              const deploymentRes = await fetch("php/deployment_operations.php?trainee_id=" + data.trainee_id);
+              const deploymentData = await deploymentRes.json();
+              if (!deploymentData.success || !deploymentData.data || !deploymentData.data.company_id || deploymentData.data.deployment_status !== 'deployed') {
+                restrictionMsg = "You cannot start your OJT until you are deployed to a company. Please wait for your OJT coordinator to assign you to a company.";
+              } else {
+                canStartOJT = true;
+              }
+            }
+            
+            btnTimeIn.disabled = !canStartOJT;
+            btnTimeOut.disabled = !canStartOJT;
+            
+            if (!canStartOJT) {
+              // Show SweetAlert2 dialog and hide the red text
+              restrictionMessage.style.display = "none";
+              Swal.fire({
+                icon: 'error',
+                title: 'Access Restricted',
+                html: `<div style='font-size:18px;'>${restrictionMsg}</div>`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                confirmButtonText: 'OK',
+                customClass: { popup: 'swal2-restriction-modal' }
+              });
+            } else {
+              restrictionMessage.style.display = "none";
+            }
+          } catch (err) {
+            console.error("Failed to check requirements:", err);
+            Swal.fire("Error", "Failed to check requirements status", "error");
+          }
+        }
+    
+        async function fetchTraineeInfo() {
+          try {
+            const res = await fetch("php/get_trainee_info.php");
+            const data = await res.json();
+            
+            if (data.redirect) {
+              window.location.href = data.redirect;
+              return;
+            }
+            
+            if (data.success) {
+              const profile = data.profile;
+              traineeId = profile.trainee_id;
+              // Set requiredHours based on program
+              if (profile.program && profile.program.toUpperCase() === 'BSCS') {
+                requiredHours = 162;
+              } else {
+                requiredHours = 486;
+              }
+              document.getElementById('traineeName').textContent = profile.full_name || '';
+              document.getElementById('traineeId').textContent = profile.trainee_id || '';
+              document.getElementById('traineeProgram').textContent = profile.program || '';
+              document.getElementById('traineeSection').textContent = profile.section || '';
+              document.getElementById('traineeCompany').textContent = profile.company_name ? profile.company_name : '';
+              document.getElementById('traineeSchool').textContent = profile.school || '';
+              document.getElementById('traineeStatus').textContent = profile.status || '';
+              
+              // Check pre-requirements status
+              await checkPreRequirements();
+              
+              // Only fetch worklog if pre-requirements are approved
+              if (!btnTimeIn.disabled) {
+                await fetchWorklog();
+                setInterval(fetchWorklog, 5000);
+              }
+            }
+          } catch (err) {
+            console.error("Failed to fetch trainee info:", err);
+            Swal.fire("Error", "Failed to load trainee information", "error");
+          }
+        }
+    
+        async function fetchWorklog() {
+          try {
+            const res = await fetch("php/attendance.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "getLogs", trainee_id: traineeId })
+            });
+            const data = await res.json();
+            
+            if (data.redirect) {
+              window.location.href = data.redirect;
+              return;
+            }
+            
+            if (data.success) {
+              const logs = data.data;
+              const totalHours = logs.reduce((sum, log) => sum + (parseFloat(log.hours_worked) || 0), 0);
+              const remaining = Math.max(0, requiredHours - totalHours);
+              const percent = Math.min(100, (totalHours / requiredHours) * 100);
+              totalHoursEl.textContent = totalHours.toFixed(2);
+              remainingHoursEl.textContent = remaining.toFixed(2);
+              animateCircle(Math.round(percent));
+            }
+          } catch (err) {
+            console.error("Failed to fetch logs:", err);
+            Swal.fire("Error", "Failed to load worklog data", "error");
+          }
+        }
+    
+        // TIME IN
+        document.getElementById("btnTimeIn").addEventListener("click", async () => {
+          if (!traineeId) {
+            Swal.fire("Error", "Trainee ID not loaded yet.", "error");
+            return;
+          }
+    
+          try {
+            const res = await fetch("php/attendance.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "timeIn", trainee_id: traineeId })
+            });
+            const data = await res.json();
+    
+            if (!data.success && data.message.includes('weekend')) {
+              Swal.fire({
+                icon: "warning",
+                title: "Weekend Restriction",
+                text: data.message,
+                confirmButtonColor: "#dfd61e",
+                confirmButtonText: "I Understand",
+                customClass: {
+                  popup: 'weekend-warning-popup',
+                  title: 'weekend-warning-title',
+                  content: 'weekend-warning-content'
+                }
+              });
+            } else {
+              Swal.fire({
+                icon: data.success ? "success" : "info",
+                title: "Time In",
+                text: `${data.message}${data.time_in ? ' at ' + formatTimePhilippines(data.time_in) : ''}`,
+                confirmButtonColor: "#02602e"
+              });
+            }
+    
+            await fetchWorklog();
+          } catch (error) {
+            console.error("Time In error:", error);
+            Swal.fire("Error", "Failed to record Time In", "error");
+          }
+        });
+    
+        // TIME OUT
+        document.getElementById("btnTimeOut").addEventListener("click", async () => {
+          if (!traineeId) {
+            Swal.fire("Error", "Trainee ID not loaded yet.", "error");
+            return;
+          }
+    
+          try {
+            const res = await fetch("php/attendance.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "timeOut", trainee_id: traineeId })
+            });
+            const data = await res.json();
+    
+            if (!data.success && data.message.includes('weekend')) {
+              Swal.fire({
+                icon: "warning",
+                title: "Weekend Restriction",
+                text: data.message,
+                confirmButtonColor: "#dfd61e",
+                confirmButtonText: "I Understand",
+                customClass: {
+                  popup: 'weekend-warning-popup',
+                  title: 'weekend-warning-title',
+                  content: 'weekend-warning-content'
+                }
+              });
+            } else {
+              Swal.fire({
+                icon: data.success ? "success" : "info",
+                title: "Time Out",
+                text: `${data.message}${data.time_out ? ' at ' + formatTimePhilippines(data.time_out) : ''}`,
+                confirmButtonColor: "#02602e"
+              });
+            }
+    
+            await fetchWorklog();
+          } catch (error) {
+            console.error("Time Out error:", error);
+            Swal.fire("Error", "Failed to record Time Out", "error");
+          }
+        });
+    
+        // CLOCK
+        function updateClock() {
+          const now = new Date();
+          let hours = now.getHours();
+          let minutes = now.getMinutes();
+          let seconds = now.getSeconds();
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          hours = hours % 12;
+          if (hours === 0) hours = 12;
+          const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
+          document.getElementById('digitalClock').textContent = timeString;
+          const dateString = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+          document.getElementById('clockDate').textContent = dateString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // SIMPLE CALENDAR
+        function renderCalendar() {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = now.getMonth();
+          const today = now.getDate();
+          const monthName = now.toLocaleString('default', { month: 'long' });
+          document.getElementById('calendarHeader').textContent = `${monthName} ${year}`;
+          const firstDay = new Date(year, month, 1).getDay();
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          let html = '<table class="calendar-table"><thead><tr>';
+          const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+          for (let d of days) html += `<th>${d}</th>`;
+          html += '</tr></thead><tbody><tr>';
+          let day = 1;
+          for (let i = 0; i < firstDay; i++) html += '<td></td>';
+          for (let i = firstDay; i < 7; i++) {
+            html += `<td${day === today ? ' class="today"' : ''}>${day}</td>`;
+            day++;
+          }
+          html += '</tr>';
+          while (day <= daysInMonth) {
+            html += '<tr>';
+            for (let i = 0; i < 7; i++) {
+              if (day > daysInMonth) html += '<td></td>';
+              else html += `<td${day === today ? ' class="today"' : ''}>${day}</td>`;
+              day++;
+            }
+            html += '</tr>';
+          }
+          html += '</tbody></table>';
+          document.getElementById('simpleCalendar').innerHTML = html;
+        }
+        renderCalendar();
+
+        fetchTraineeInfo();
+      });
+
+      window.addEventListener('message', function(event) {
+      if (event.data.type === 'DARK_MODE') {
+      const isDark = event.data.isDark;
+      if (isDark) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }
+});
+
+    </script>
+
+</body>
+</html>

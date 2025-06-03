@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Administrator Home</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 100px;
+      background-color: #d3dcd3;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 10px 0;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      transition: width 0.3s ease-in-out;
+      z-index: 1000;
+    }
+
+    .sidebar.expanded {
+      width: 280px;
+    }
+
+    .menu-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .menu-item {
+      width: 90%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin: 5px 0;
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s, padding-left 0.3s;
+      padding-left: 10px;
+    }
+
+    .menu-item:hover {
+      background: #dfd61e;
+    }
+
+    .menu-item img {
+      width: 40px;
+      height: 40px;
+    }
+
+    .menu-item span {
+      opacity: 0;
+      white-space: nowrap;
+      margin-left: 15px;
+      font-size: 17px;
+      color: #02602e;
+      font-weight: bold;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .sidebar.expanded .menu-item span {
+      opacity: 1;
+    }
+
+    .submenu {
+      display: none;
+      flex-direction: column;
+      width: 90%;
+      margin-left: 80px;
+    }
+
+    .submenu .menu-item span {
+    font-size: 13px;
+    }
+
+    .sidebar.expanded .submenu .menu-item span {
+      opacity: 1;
+    }
+
+    .menu-item.has-submenu::after {
+      content: '▼';
+      position: absolute;
+      right: 15px;
+      font-size: 12px;
+      color: #02602e;
+      transition: transform 0.3s;
+    }
+
+    .menu-item.has-submenu.active::after {
+      transform: rotate(180deg);
+    }
+
+    .content {
+      margin-left: 100px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      height: 100vh;
+      overflow: hidden;
+      transition: margin-left 0.3s;
+    }
+
+    .sidebar.expanded ~ .content {
+      margin-left: 280px;
+    }
+
+    .header {
+      width: 100%;
+      padding-bottom: 10px;
+    }
+
+    .header img {
+      width: 100%;
+      max-height: 150px;
+      object-fit: cover;
+      border-radius: 15px;
+    }
+
+    iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal-box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .modal-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .modal-buttons .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn.confirm {
+      background-color: #0e6c38;
+      color: white;
+    }
+
+    .btn.cancel {
+      background-color: #ccc;
+      color: black;
+    }
+
+    /* Profile dropdown styles */
+    .profile-dropdown {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .profile-item {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+      cursor: pointer;
+    }
+
+    .profile-item img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #02602e;
+    }
+
+    .profile-dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 90px;
+    }
+
+    .profile-dropdown-content a {
+      color: #333;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .profile-dropdown-content a:hover {
+      background-color: #dfd61e;
+    }
+
+    .profile-dropdown-header {
+      padding: 12px 16px;
+      background-color: #025b2c;
+      color: white;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .profile-dropdown-divider {
+      height: 1px;
+      background-color: #ddd;
+      margin: 5px 0;
+    }
+
+    .show {
+      display: block;
+    }
+
+    /* Dark mode */
+    .dark-mode {
+      background-color: #475664;
+      color: #f1f1f1;
+    }
+    .dark-mode .sidebar {
+      background-color: #292b40;
+    }
+    .dark-mode .menu-item span {
+      color: #f1f1f1;
+    }
+    .dark-mode .profile-item img {
+      border-color: #f1f1f1;
+    }
+    .dark-mode .profile-dropdown-content {
+      background-color: #333;
+    }
+    .dark-mode .profile-dropdown-content a {
+      color: #f1f1f1;
+    }
+    .dark-mode .profile-dropdown-content a:hover {
+      background-color: #444;
+    }
+    .dark-mode .modal-box {
+      background-color: #333;
+      color: #f1f1f1;
+    }
+
+    .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    }
+
+    .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    }
+
+  .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  }
+
+  .slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  }
+
+  input:checked + .slider {
+  background-color: #0e6c38;
+  }
+
+  input:checked + .slider:before {
+  transform: translateX(26px);
+  }
+
+  .slider.round {
+  border-radius: 34px;
+  }
+
+  .slider.round:before {
+  border-radius: 50%;
+  }
+    
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="menu-container">
+    <div class="profile-dropdown">
+      <div class="profile-item" onclick="toggleProfileDropdown()">
+        <img src="" />
+      </div>
+      <div id="profileDropdown" class="profile-dropdown-content">
+        <div class="profile-dropdown-header">My Profile</div>
+        <a href="#" onclick="loadPage('admin_3profile.html')">Edit Profile</a>
+        <div class="profile-dropdown-divider"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;">
+          <span style="font-size: 14px;">Dark Mode</span>
+          <label class="switch">
+            <input type="checkbox" id="themeToggle">
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <div class="profile-dropdown-divider"></div>
+        <a href="#" onclick="showLogoutModal()">Logout</a>
+      </div>
+    </div>
+
+    <div class="menu-item" data-page="admin_2dashboard.html">
+      <img src="icons/home.png" alt="Home" />
+      <span>Dashboard</span>
+    </div>
+
+    <!-- OJT Coordinators Dropdown -->
+    <div class="menu-item has-submenu">
+      <img src="icons/coordinator.png" alt="Coordinator" />
+      <span>OJT Coordinators</span>
+    </div>
+    <div class="submenu">
+      <div class="menu-item" data-page="admin_ListCoordinator.html">
+        <img src="icons/masterlist.png" alt="Masterlist" />
+        <span>Masterlist</span>
+      </div>
+      <div class="menu-item" data-page="admin_assignsec.html">
+        <img src="icons/section.png" alt="Section Assignment" />
+        <span>Section Assignment</span>
+      </div>
+    </div>
+
+    <div class="menu-item" data-page="admin_ListCompany.html">
+      <img src="icons/company.png" alt="Company" />
+      <span>Corporate Partners</span>
+    </div>
+
+    <!-- Trainees Dropdown -->
+    <div class="menu-item has-submenu">
+      <img src="icons/trainee.png" alt="Trainee" />
+      <span>Trainees</span>
+    </div>
+    <div class="submenu">
+      <div class="menu-item" data-page="admin_ViewListTrainee.html">
+        <img src="icons/masterlist.png" alt="Masterlist" />
+        <span>Masterlist</span>
+      </div>
+      <div class="menu-item" data-page="admin_requirements.html">
+        <img src="icons/requirement.png" alt="Requirements" />
+        <span>Requirements</span>
+      </div>
+    </div>
+    <div class="menu-item" data-page="admin_archive.html">
+      <img src="icons/archive.png" alt="Archive" />
+      <span>Archive</span>
+    </div>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+  <div class="header">
+    <img src="icons/header.png" alt="Pamantasan Ng Lungsod Ng Pasig" />
+  </div>
+  <iframe id="mainFrame" name="mainFrame" src="admin_2dashboard.html"></iframe>
+</div>
+
+<!-- Logout Modal -->
+<div id="logoutModal" class="modal-overlay">
+  <div class="modal-box">
+    <h2 style="color: #02602e;">Are you sure you want to logout?</h2>
+    <div class="modal-buttons">
+      <button class="btn confirm" onclick="logoutNow()">Yes</button>
+      <button class="btn cancel" onclick="closeLogoutModal()">No</button>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const sidebar = document.getElementById("sidebar");
+    const menuItems = document.querySelectorAll(".menu-item[data-page]");
+    const submenus = document.querySelectorAll(".menu-item.has-submenu");
+    const mainFrame = document.getElementById("mainFrame");
+
+    // Sidebar Expand/Collapse
+    sidebar.addEventListener("mouseenter", () => sidebar.classList.add("expanded"));
+    sidebar.addEventListener("mouseleave", () => {
+      sidebar.classList.remove("expanded");
+      
+      // Hide profile dropdown when sidebar collapses
+      document.getElementById("profileDropdown").classList.remove("show");
+
+      // Hide all submenus and remove active class
+      document.querySelectorAll(".submenu").forEach((submenu) => {
+        submenu.style.display = "none";
+      });
+      document.querySelectorAll(".has-submenu").forEach((item) => {
+        item.classList.remove("active");
+      });
+    });
+
+    // Load pages
+    menuItems.forEach((item) => {
+      item.addEventListener("click", function (e) {
+        const page = this.getAttribute("data-page");
+        if (page) {
+          mainFrame.src = page;
+          e.stopPropagation();
+        }
+      });
+    });
+
+    // Toggle Submenus
+    submenus.forEach((trigger) => {
+      trigger.addEventListener("click", function () {
+        this.classList.toggle("active");
+        const next = this.nextElementSibling;
+        if (next && next.classList.contains("submenu")) {
+          next.style.display = next.style.display === "flex" ? "none" : "flex";
+        }
+      });
+    });
+  });
+
+  function toggleProfileDropdown() {
+    document.getElementById("profileDropdown").classList.toggle("show");
+  }
+
+  // Close the dropdown if clicked outside
+  window.onclick = function(event) {
+    if (!event.target.matches('.profile-item') && !event.target.closest('.profile-dropdown')) {
+      var dropdowns = document.getElementsByClassName("profile-dropdown-content");
+      for (var i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+          openDropdown.classList.remove('show');
+        }
+      }
+    }
+  }
+
+  function loadPage(page) {
+    document.getElementById("mainFrame").src = page;
+    document.getElementById("profileDropdown").classList.remove("show");
+  }
+
+  function logoutNow() {
+    window.location.href = "index.html";
+  }
+
+  function closeLogoutModal() {
+    document.getElementById("logoutModal").style.display = "none";
+  }
+
+  function showLogoutModal() {
+    document.getElementById("logoutModal").style.display = "flex";
+  }
+
+  const toggle = document.getElementById('themeToggle');
+  const body = document.body;
+
+  // Function to set dark mode state
+  function setDarkMode(isDark) {
+  if (isDark) {
+    body.classList.add('dark-mode');
+  } else {
+    body.classList.remove('dark-mode');
+  }
+
+  // Send dark mode state to iframe
+  const iframe = document.getElementById('mainFrame');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({
+      type: 'DARK_MODE',
+      isDark: isDark
+    }, '*');
+  }
+
+  // Save preference to localStorage
+  localStorage.setItem('darkMode', isDark);
+}
+
+// Load saved preference
+const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+toggle.checked = savedDarkMode;
+setDarkMode(savedDarkMode);
+
+toggle.addEventListener('change', () => {
+  setDarkMode(toggle.checked);
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  fetch('php/get_admin_info.php')
+    .then(response => response.json())
+    .then(data => {
+      const img = document.querySelector('.profile-item img');
+      if (img) {
+        img.onerror = function() {
+          this.style.display = 'none';
+        };
+        if (data.success && data.profile && data.profile.profile_image) {
+          let imgUrl = data.profile.profile_image;
+          if (!/^https?:\/\//.test(imgUrl)) {
+            imgUrl = window.location.origin + '/upsystem/html/' + imgUrl.replace(/^\/*/, '');
+          }
+          imgUrl += '?t=' + new Date().getTime();
+          img.src = imgUrl;
+          img.style.display = '';
+          localStorage.setItem('adminProfileImage', imgUrl);
+        } else {
+          img.src = '';
+          img.style.display = 'none';
+        }
+      }
+    })
+    .catch(() => {
+      const img = document.querySelector('.profile-item img');
+      if (img) {
+        img.src = '';
+        img.style.display = 'none';
+      }
+    });
+});
+
+window.addEventListener('message', function(event) {
+  if (event.data.type === 'UPDATE_PROFILE_IMAGE') {
+    console.log('[Menu] Received UPDATE_PROFILE_IMAGE', event.data.imageUrl);
+    const img = document.querySelector('.profile-item img');
+    if (img) {
+      img.onerror = function() {
+        this.style.display = 'none';
+      };
+      let imgUrl = event.data.imageUrl;
+      if (!/^https?:\/\//.test(imgUrl)) {
+        imgUrl = window.location.origin + '/upsystem/html/' + imgUrl.replace(/^\/*/, '');
+      }
+      img.src = imgUrl;
+      img.style.display = '';
+      localStorage.setItem('adminProfileImage', imgUrl);
+    }
+  }
+});
+
+// Send dark mode state when iframe loads
+document.getElementById('mainFrame').addEventListener('load', function () {
+  const iframe = this;
+  iframe.contentWindow.postMessage({
+    type: 'DARK_MODE',
+    isDark: toggle.checked
+  }, '*');
+});
+
+</script>
+</body>
+</html>

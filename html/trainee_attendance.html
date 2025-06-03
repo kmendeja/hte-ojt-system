@@ -1,0 +1,440 @@
+<?php include_once 'php/check_trainee_access.php'; ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Worklog & Attendance</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 1350px;
+      margin: 30px auto;
+      background: white;
+      padding: 0;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-title {
+      font-size: 20px;
+      color: white;
+      background-color: #006633;
+      padding: 15px;
+      text-align: center;
+      margin: 0;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+    }
+
+    .section-content {
+      padding: 30px;
+    }
+
+    .worklog-info {
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .divider {
+      margin: 0 10px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      background-color: #0e6c38;
+      padding: 15px 20px;
+      color: white;
+      gap: 15px;
+      flex-wrap: wrap;
+      border-top: 1px solid #ccc;
+    }
+
+    .toolbar button {
+      background: #028a3d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar button img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .toolbar button:hover {
+      background-color: #dfd61e;
+    }
+
+    .sort-dropdown {
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid gray;
+    }
+
+    .attendance-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .attendance-table th, 
+    .attendance-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .attendance-table th {
+      background-color: #028a3d;
+      color: white;
+    }
+
+    .attendance-table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    @media (max-width: 768px) {
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar button,
+      .sort-dropdown {
+        width: 100%;
+      }
+    }
+
+    .dark-mode {
+    background-color: #292b40;
+    color: #f1f1f1;
+    }
+
+    body.dark-mode table, body.dark-mode th, body.dark-mode td,
+    body.light-mode table, body.light-mode th, body.light-mode td {
+      color: #000 !important;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- WORKLOG Section -->
+  <div class="section-title">WORKLOG</div>
+  <div class="section-content">
+    <p class="worklog-info">
+      <strong>TOTAL WORKING HOURS:</strong> <span id="total-hours">0</span>
+      <span class="divider">|</span>
+      <strong>REMAINING HOURS:</strong> <span id="remaining-hours">486</span>
+    </p>
+  </div>
+
+  <!-- ATTENDANCE RECORD Section -->
+  <div class="section-title">ATTENDANCE RECORD</div>
+  <div class="section-content">
+
+    <div class="toolbar">
+      <button id="generate-btn">
+        <img src="icons/generate.png" alt="Generate"> GENERATE
+      </button>
+
+      <select class="sort-dropdown" id="sort-dropdown">
+        <option value="" disabled selected>SORT BY...</option>
+        <option value="recent">RECENT TO OLDEST</option>
+        <option value="oldest">OLDEST TO RECENT</option>
+      </select>
+    </div>
+
+    <table class="attendance-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Time In</th>
+          <th>Time Out</th>
+          <th>Working Hours</th>
+        </tr>
+      </thead>
+      <tbody id="attendance-body">
+        <!-- Rows will be dynamically inserted here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Required Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  // ✅ Move this OUTSIDE → GLOBAL
+  let attendanceLogs = [];
+  let requiredHours = 486; // default
+
+  function formatDate(dateString) {
+    if (!dateString) return "—";
+    const date = new Date(dateString);
+    if (isNaN(date)) return dateString;
+    return date.toLocaleDateString('en-PH', {
+      timeZone: 'Asia/Manila',
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  function formatTime(timeString) {
+    if (!timeString || timeString === 'N/A') return "—";
+    let [hours, minutes] = timeString.split(':');
+    if (typeof minutes === 'undefined') return timeString;
+    hours = parseInt(hours, 10);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
+    return `${hours}:${minutes.padStart(2, '0')} ${ampm}`;
+  }
+
+  function getRemark(timeIn) {
+    if (!timeIn || timeIn === 'N/A' || timeIn === '—') return 'Absent';
+    
+    // Convert time string to Date object for comparison
+    const [hours, minutes] = timeIn.split(':');
+    const inTime = new Date();
+    // Set to UTC+8 (Philippine time)
+    inTime.setUTCHours(parseInt(hours), parseInt(minutes), 0);
+    
+    const cutoffTime = new Date();
+    cutoffTime.setUTCHours(8, 30, 0); // 8:30 AM cutoff
+    
+    return inTime <= cutoffTime ? 'On Time' : 'Tardy';
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const tbody = document.getElementById("attendance-body");
+    const totalHoursSpan = document.getElementById("total-hours");
+    const remainingHoursSpan = document.getElementById("remaining-hours");
+    let traineeId = '';
+
+    async function fetchTraineeInfo() {
+      try {
+        const response = await fetch('php/get_trainee_info.php');
+        if (!response.ok) throw new Error('Failed to fetch trainee data');
+        const data = await response.json();
+        if (data.redirect) {
+          window.location.href = data.redirect;
+          return;
+        }
+        if (data.success) {
+          traineeId = data.profile.trainee_id;
+          // Set requiredHours based on program
+          if (data.profile.program && data.profile.program.toUpperCase() === 'BSCS') {
+            requiredHours = 162;
+          } else {
+            requiredHours = 486;
+          }
+          await loadAttendanceLogs();
+        } else {
+          throw new Error(data.message || 'Failed to get trainee ID');
+        }
+      } catch (error) {
+        console.error('Error loading trainee info:', error);
+        showError('Error loading trainee information');
+      }
+    }
+
+    async function loadAttendanceLogs() {
+      showLoading(true);
+      try {
+        const response = await fetch("php/attendance.php", {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: "getLogs", trainee_id: traineeId })
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch logs');
+        
+        const data = await response.json();
+        
+        if (data.redirect) {
+          window.location.href = data.redirect;
+          return;
+        }
+        
+        if (data.success) {
+          if (data.data.length === 0) {
+            showMessage('No attendance records found');
+          } else {
+            attendanceLogs = data.data;
+            renderTable(attendanceLogs);
+            updateWorklog(attendanceLogs);
+          }
+        } else {
+          throw new Error(data.message || 'No data returned');
+        }
+      } catch (error) {
+        console.error('Error loading logs:', error);
+        showError(error.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function renderTable(logs) {
+      tbody.innerHTML = "";
+      logs.forEach(log => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${formatDate(log.date)}</td>
+          <td>${formatTime(log.time_in)}</td>
+          <td>${formatTime(log.time_out)}</td>
+          <td>${log.hours_worked ? parseFloat(log.hours_worked).toFixed(2) : "—"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateWorklog(logs) {
+      const totalHoursWorked = logs.reduce((total, log) => total + (parseFloat(log.hours_worked) || 0), 0);
+      totalHoursSpan.textContent = totalHoursWorked.toFixed(2);
+      remainingHoursSpan.textContent = Math.max(0, requiredHours - totalHoursWorked).toFixed(2);
+    }
+
+    function showMessage(message) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">${message}</td></tr>`;
+    }
+
+    function showError(error) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Error: ${error}</td></tr>`;
+    }
+
+    document.getElementById('sort-dropdown').addEventListener('change', function () {
+      const sortOrder = this.value;
+      let sortedLogs = [...attendanceLogs];
+      
+      if (sortOrder === "recent") {
+        sortedLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+      } else if (sortOrder === "oldest") {
+        sortedLogs.sort((a, b) => new Date(a.date) - new Date(b.date));
+      }
+      
+      renderTable(sortedLogs);
+    });
+
+    // Add loading indicator function
+    function showLoading(show) {
+      const loadingEl = document.getElementById('loadingIndicator');
+      if (show) {
+        if (!loadingEl) {
+          const div = document.createElement('div');
+          div.id = 'loadingIndicator';
+          div.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.9); padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); z-index: 1000;';
+          div.innerHTML = 'Loading...';
+          document.body.appendChild(div);
+        }
+      } else {
+        if (loadingEl) {
+          loadingEl.remove();
+        }
+      }
+    }
+
+    fetchTraineeInfo();
+    // Reduce refresh interval to 30 seconds
+    setInterval(loadAttendanceLogs, 30000);
+  });
+
+  // ✅ Export function stays outside, now sees global attendanceLogs
+  document.getElementById("generate-btn").addEventListener("click", function () {
+    if (!attendanceLogs || attendanceLogs.length === 0) {
+      Swal.fire('No records', 'There are no attendance records to export.', 'warning');
+      return;
+    }
+
+    Swal.fire({
+      title: 'Export Attendance Record',
+      text: 'Select the format you want to export:',
+      input: 'select',
+      inputOptions: { 'excel': 'Excel (.xlsx)', 'pdf': 'PDF (.pdf)' },
+      inputPlaceholder: 'Select format',
+      showCancelButton: true,
+      confirmButtonText: 'Export',
+      cancelButtonText: 'Cancel',
+      inputValidator: (value) => { if (!value) return 'You need to select a format!'; }
+    }).then((result) => {
+      let format = result.value;
+
+      if (!format && !result.isConfirmed) {
+        format = prompt("Enter 'excel' or 'pdf' to export:").toLowerCase();
+        if (format !== "excel" && format !== "pdf") {
+          alert("Invalid format selected.");
+          return;
+        }
+      }
+
+      const attendanceData = attendanceLogs.map(log => [
+        formatDate(log.date),
+        formatTime(log.time_in),
+        formatTime(log.time_out),
+        log.hours_worked ? parseFloat(log.hours_worked).toFixed(2) : "—"
+      ]);
+
+      if (format === "excel") {
+        const wb = XLSX.utils.book_new();
+        const ws_data = [["Date", "Time In", "Time Out", "Working Hours"], ...attendanceData];
+        const ws = XLSX.utils.aoa_to_sheet(ws_data);
+        XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+        XLSX.writeFile(wb, "Attendance_Record.xlsx");
+        Swal.fire('Success!', 'Excel file has been generated.', 'success');
+      } else if (format === "pdf") {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(12);
+        doc.text("Attendance Record", 14, 15);
+        doc.autoTable({
+          startY: 20,
+          head: [["Date", "Time In", "Time Out", "Working Hours"]],
+          body: attendanceData,
+          styles: { fontSize: 9 },
+          headStyles: { fillColor: [2, 138, 61] },
+        });
+        doc.save("Attendance_Record.pdf");
+        Swal.fire('Success!', 'PDF file has been generated.', 'success');
+      }
+    });
+  });
+
+  window.addEventListener('message', function(event) {
+      if (event.data.type === 'DARK_MODE') {
+      const isDark = event.data.isDark;
+      if (isDark) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }
+});
+
+</script>
+</body>
+</html>

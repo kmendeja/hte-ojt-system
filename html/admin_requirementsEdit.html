@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>REQUIREMENTS MANAGEMENT - Edit Form</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      background-color: #3b463e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .form-container {
+      background-color: #084018;
+      color: white;
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-header {
+      background-color: white;
+      color: #084018;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    select, input[type="text"], input[type="number"] {
+      padding: 0.75rem;
+      border: 2px solid #f5cc00;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background-color: white;
+      color: black;
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: flex-end;
+    }
+
+    .cancel-btn, .save-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      min-width: 120px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cancel-btn {
+      background-color: #6b7280;
+      color: white;
+    }
+
+    .save-btn {
+      background-color: #f5cc00;
+      color: black;
+    }
+
+    @media (max-width: 768px) {
+      .form-container {
+        padding: 1rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <form id="editRequirementForm">
+      <div class="form-header">EDIT REQUIREMENT</div>
+
+      <div class="form-grid">
+        <!-- Type of Requirement Dropdown -->
+        <div class="form-group">
+          <label for="requirementType">Type of Requirement:</label>
+          <select id="requirementType" name="requirementType" required>
+            <option value="" disabled selected hidden>Select Type of Requirement</option>
+            <option value="pre">Pre-OJT Requirements</option>
+            <option value="post">Post-OJT Requirements</option>
+          </select>
+        </div>
+
+        <!-- Requirement Name -->
+        <div class="form-group">
+          <label for="requirementName">Requirement Name:</label>
+          <input type="text" id="requirementName" name="requirementName" placeholder="Enter Requirement Name" required>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="button-group">
+        <button type="button" class="cancel-btn" onclick="cancelEdit()">CANCEL</button>
+        <button type="submit" class="save-btn">SAVE</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    // Fetch query parameters to pre-fill the form
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const requirementName = urlParams.get('requirementName');
+        const requirementType = urlParams.get('requirementType');
+        const requirementId = urlParams.get('id');
+        
+        if (requirementName) {
+            document.getElementById("requirementName").value = requirementName;
+        }
+        if (requirementType) {
+            document.getElementById("requirementType").value = requirementType;
+        }
+    };
+
+    // Handle form submission
+    document.getElementById('editRequirementForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const newName = document.getElementById("requirementName").value.trim();
+        const newType = document.getElementById("requirementType").value;
+        const requirementId = new URLSearchParams(window.location.search).get('id');
+
+        if (!newName || !newType || !requirementId) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        // Send the updated values back to the parent page
+        window.parent.saveEdit(newName, newType, requirementId);
+    });
+
+    function cancelEdit() {
+        if (confirm('Are you sure you want to cancel the edits?')) {
+            window.parent.closeEditModal();
+        }
+    }
+  </script>
+</body>
+</html>

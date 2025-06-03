@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Coordinator Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .top-container {
+            background-color: #0e6c38;
+            color: white;
+            width: 95%;
+            max-width: 1350px;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid white;
+            padding-bottom: 10px;
+        }
+
+        .profile-summary-card {
+        background-color: #0e6c38;
+        color: white;
+        border-radius: 15px;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        height: 123px;
+       }
+
+      .profile-summary-card h2 {
+       margin: 0;
+      font-size: 25px;
+      font-weight: bold;
+      }
+
+      .profile-summary-card p {
+      margin: 2px 0;
+      font-size: 14px;
+      }
+
+      .profile-image {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      }
+       
+      .bottom-container {
+            width: 95%;
+            max-width: 1350px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .left-container {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .left-container .chart-box {
+        height:354px; /* increase or decrease as you like */
+        }
+
+        .right-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+    .summary-card {
+    border: 4px solid #0e6c38;
+    border-radius: 20px;
+    background: white;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #0e6c38;
+    text-align: center;
+    padding: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(14, 108, 56, 0.2);
+    }
+
+    .summary-card .icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 8px;
+    }
+
+    .summary-card .label {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    }
+
+    .summary-card .value {
+    font-size: 26px;
+    font-weight: bold;
+    }
+
+    .summary-card .icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-left: 10px;
+    }
+
+    .summary-cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    }
+        
+    .tally {
+            background: white;
+            border: 4px solid #0e6c38;
+            border-radius: 20px;
+            height: 350px;
+            padding: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+       
+     }
+
+    .tally h3 {
+            font-size: 16px;
+            color: #11944e;
+            margin-bottom: 10px;
+    }
+
+
+    canvas {
+            width: 100% !important;
+            max-height: 250px;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-container {
+                flex-direction: column;
+            }
+
+            .summary-cards {
+                flex-direction: column;
+            }
+        }
+
+    .dark-mode {
+    background-color: #292b40;
+    color: #f1f1f1;
+    }
+
+    </style>
+</head>
+<body>
+
+    <div class="bottom-container">
+        <!-- Left side: Task Submission -->
+        <div class="left-container">
+            <!-- Profile Info Card -->
+            <div class="profile-summary-card">
+                <img src="icons/icon_login.png" alt="Profile Icon" class="profile-image" />
+                <div class="profile-details">
+                    <h2></h2>
+                    <p class="employee-id">EMP ID: </p>
+                    <p class="job-description"></p>
+                </div>                
+            </div>
+        
+            <!-- Task Submission Chart -->
+            <div class="tally">
+                <h3>Task Submission % per Section</h3>
+                <div style="text-align:center; font-weight:bold; color:#0e6c38; margin-bottom:10px;">Academic Year: 2025-2026</div>
+                <canvas id="submissionChart"></canvas>
+            </div>
+        </div>
+        
+
+        <!-- Right side: Cards + Trainees Chart -->
+        <div class="right-container">
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <img class="icon" src="icons/studentTally.png" alt="Company" style="width: 100px; height: 100px; margin-bottom: 10px;" />
+                    <div class="label"><br>TRAINEE</div>
+                    <div class="value"></div>
+                </div>                
+                <div class="summary-card">
+                    <img class="icon" src="icons/companyTally.png" alt="Company" style="width: 100px; height: 100px; margin-bottom: 10px;" />
+                    <div class="label">CORPORATE<br>PARTNERS</div>
+                    <div class="value"></div>
+                </div>
+            </div>    
+
+            
+            <div class="chart-box">
+                <h3>Trainees per Section</h3>
+                <div style="text-align:center; font-weight:bold; color:#0e6c38; margin-bottom:10px;">Academic Year: 2025-2026</div>
+                <canvas id="traineesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load coordinator data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCoordinatorProfile();
+            loadCoordinatorCounts();
+            loadChartData();
+        });
+    
+        // Function to load coordinator profile info
+        function loadCoordinatorProfile() {
+            fetch('php/get_coordinator_info.php')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.profile) {
+                        document.querySelector('.profile-details h2').textContent = data.profile.full_name.toUpperCase();
+                        document.querySelector('.profile-details .employee-id').textContent = data.profile.employee_id;
+                        document.querySelector('.profile-details .job-description').textContent = data.profile.job_description || '';
+                    } else {
+                        console.error('Profile error:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                });
+        }
+    
+        // Function to load dynamic counts
+        function loadCoordinatorCounts() {
+            fetch('php/get_coordinator_counts.php')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.counts) {
+                        document.querySelector('.summary-card:nth-child(1) .value').textContent = data.counts.trainees;
+                        document.querySelector('.summary-card:nth-child(2) .value').textContent = data.counts.companies;
+                    } else {
+                        console.error('Count error:', data.message);
+                        // Fallback values
+                        document.querySelector('.summary-card:nth-child(1) .value').textContent = 'N/A';
+                        document.querySelector('.summary-card:nth-child(2) .value').textContent = 'N/A';
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    // Fallback values
+                    document.querySelector('.summary-card:nth-child(1) .value').textContent = 'N/A';
+                    document.querySelector('.summary-card:nth-child(2) .value').textContent = 'N/A';
+                });
+        }
+
+        let submissionChart = null;
+        let traineesChart = null;
+
+        // Function to generate colors for dynamic sections
+        function generateColors(count) {
+            const baseColors = ['#2ecc71', '#3498db', '#f1c40f', '#e67e22', '#9b59b6', '#1abc9c', '#34495e', '#e74c3c'];
+            const colors = [];
+            
+            for (let i = 0; i < count; i++) {
+                colors.push(baseColors[i % baseColors.length]);
+            }
+            
+            return colors;
+        }
+    
+        // Function to load chart data
+        async function loadChartData() {
+            try {
+                // Fetch task submission stats
+                const submissionResponse = await fetch('php/get_task_stats.php');
+                const submissionData = await submissionResponse.json();
+
+                // Fetch section stats
+                const sectionResponse = await fetch('php/get_section_stats.php');
+                const sectionData = await sectionResponse.json();
+
+                if (submissionData.success && sectionData.success) {
+                    // Use Program - Section as the label
+                    const sectionLabels = submissionData.stats.map(stat => `${stat.program} - ${stat.section}`);
+                    const submissionStats = submissionData.stats.map(stat => stat.percent);
+                    const traineeStats = sectionData.stats.map(stat => stat.trainee_count);
+                    
+                    // Generate colors based on number of sections
+                    const colors = generateColors(sectionLabels.length);
+
+                    // Initialize or update submission chart
+                    const submissionCtx = document.getElementById('submissionChart').getContext('2d');
+                    if (submissionChart) {
+                        submissionChart.destroy();
+                    }
+                    submissionChart = new Chart(submissionCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: sectionLabels,
+                            datasets: [{
+                                label: 'Submission %',
+                                data: submissionStats,
+                                backgroundColor: colors
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `Submission: ${context.raw}%`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    title: {
+                                        display: true,
+                                        text: 'Submission Percentage',
+                                        color: '#0e6c38',
+                                        font: {
+                                            weight: 'bold'
+                                        }
+                                    },
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value + '%';
+                                        },
+                                        color: '#0e6c38'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#0e6c38',
+                                        font: {
+                                            weight: 'bold'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Initialize or update trainees chart
+                    const traineesCtx = document.getElementById('traineesChart').getContext('2d');
+                    if (traineesChart) {
+                        traineesChart.destroy();
+                    }
+                    traineesChart = new Chart(traineesCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: sectionLabels,
+                            datasets: [{
+                                label: 'Trainees',
+                                data: traineeStats,
+                                backgroundColor: '#02602e'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `Trainees: ${context.raw}`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { 
+                                        stepSize: 5,
+                                        precision: 0,
+                                        color: '#0e6c38'
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Number of Trainees',
+                                        color: '#0e6c38',
+                                        font: {
+                                            weight: 'bold'
+                                        }
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: '#0e6c38',
+                                        font: {
+                                            weight: 'bold'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading chart data:', error);
+            }
+        }
+    
+        // Dark mode handling
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'DARK_MODE') {
+                const isDark = event.data.isDark;
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+
+        // Refresh data every 5 minutes
+        setInterval(loadChartData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

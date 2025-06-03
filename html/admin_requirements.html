@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Requirements Management</title>
+  <!-- Add SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+    body.no-scroll {
+      overflow: hidden;
+    }
+    .header {
+      background-color: #0e6c38;
+      color: white;
+      padding: 15px;
+      font-size: 24px;
+      text-align: center;
+    }
+    .container {
+      width: 90%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      max-width: 1350px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      background-color: #0e6c38;
+      padding: 15px;
+      color: white;
+      align-items: center;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+    .toolbar .buttons {
+      display: flex;
+      gap: 10px;
+      margin-right: 7px;
+    }
+    .sort-dropdown {
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid gray;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black"><polygon points="0,0 16,0 8,8"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 12px;
+      padding-right: 2.5rem;
+      height: 36px;
+      margin-left: 10px;
+    }
+    .toolbar button:hover {
+      background-color: #dfd61e;
+    }
+    .toolbar button {
+      background: #028a3d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .toolbar button img {
+      width: 16px;
+      height: 16px;
+    }
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 2px solid gray;
+      width: 100%;
+      max-width: 400px;
+    }
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 5px;
+      width: 100%;
+    }
+    .search-btn {
+      background: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .search-btn img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+
+    .table th, .table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    .table th {
+      background-color: #028a3d;
+      color: white;
+      position: relative;
+    }
+    .menu {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .menu-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #028a3d;
+      min-width: 100px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      text-align: center;
+      z-index: 10;
+    }
+    .menu-content a {
+      color: white;
+      padding: 10px;
+      display: block;
+      text-decoration: none;
+    }
+    .menu-content a:hover {
+      background-color: #02602e;
+    }
+    .menu.active .menu-content {
+      display: block;
+    }
+    .menu span {
+      font-size: 24px;
+      padding: 5px 10px;
+      line-height: 1;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal-content {
+      background-color: transparent;
+      padding: 0;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 1000px;
+      box-shadow: none;
+      position: relative;
+      overflow: visible;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 40px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    .close-btn.inside {
+      color: #0e6c38;
+      font-size: 28px;
+    }
+
+    .main-content {
+      width: 1000px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .header h2 {
+      font-size: 24px;
+      color: #333;
+    }
+
+    .action-buttons {
+      display: flex;
+    }
+
+    .add-btn {
+      background-color: #0e6c38;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .requirements-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .requirements-table th,
+    .requirements-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    .requirements-table th:nth-child(2), td:nth-child(2) {
+      text-align: center;
+    }
+
+    .requirements-table th {
+      background-color: #0e6c38;
+      color: white;
+      font-weight: 500;
+    }
+
+    .requirements-table tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .requirement-type {
+      font-weight: 500;
+    }
+
+    .pre-ojt, .post-ojt {
+      color: #0e6c38;
+    }
+
+    .edit-btn {
+      background-color: #0e6c38;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+    .section-header {
+      color: #0e6c38;
+      margin: 30px 0 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .requirements-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    .dark-mode {
+      background-color: #292b40;
+      color: #f1f1f1;
+    }
+
+    body.dark-mode table, body-dark-mode th, body-dark-mode td,
+    body.light-mode table, body-light-mode th, body-light-mode td {
+      color: #000 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">REQUIREMENTS MANAGEMENT</div>
+  <div class="container">
+    <div class="toolbar">
+      <div class="search-container">
+        <div class="search-bar">
+          <input type="text" placeholder="Search for...">
+        </div>
+        <button class="search-btn">
+          <img src="icons/searchmag.png" alt="Search"> Search
+        </button>
+      </div>
+      <div class="buttons">
+        <button onclick="openOptionModal()" id="openAddCompany">
+          <img src="icons/add.png" alt="Add"> ADD
+        </button>
+      </div>
+    </div>
+
+    <h3 class="section-header">Pre-OJT Requirements</h3>
+    <table class="requirements-table">
+      <thead>
+        <tr>
+          <th>Requirement Name</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Certificate of Registration</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Application Form</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Resume/Curriculum Vitae</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Medical Certificate</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Endorsement Letter</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Memorandum Agreement</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Government/Student ID</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Birth Certificate (PSA)</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Certificate of Training/Seminar/Orientation</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type pre-ojt">Parental Consent Form</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="section-header">Post-OJT Requirements</h3>
+    <table class="requirements-table">
+      <thead>
+        <tr>
+          <th>Requirement Name</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="requirement-type post-ojt">Final Report</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type post-ojt">Supervisor Evaluation Form</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><span class="requirement-type post-ojt">Certificate of Completion</span></td>
+          <td style="vertical-align: middle;">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add Requirement Modal -->
+  <div id="addRequirementModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeAddModal()">×</button>
+      <iframe src="admin_requirementsAdd.html" width="103%" height="355px" style="border: none; border-radius: 10px;"></iframe>
+    </div>
+  </div>
+
+  <!-- Edit Requirement Modal -->
+  <div id="editRequirementModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeEditModal()">×</button>
+      <iframe id="editIframe" src="admin_requirementsEdit.html" width="103%" height="375px" style="border: none; border-radius: 10px;"></iframe>
+    </div>
+  </div>
+
+  <!-- Add SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+  <script>
+    let rowToEdit = null;
+
+    // Load requirements when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadRequirements();
+    });
+
+    // Function to load requirements from the server
+    async function loadRequirements() {
+      try {
+        const response = await fetch('php/requirements_handler.php?action=get');
+        const data = await response.json();
+        
+        if (data.success) {
+          const preOjtTable = document.querySelector('.requirements-table:first-of-type tbody');
+          const postOjtTable = document.querySelector('.requirements-table:last-of-type tbody');
+          
+          // Clear existing tables
+          preOjtTable.innerHTML = '';
+          postOjtTable.innerHTML = '';
+          
+          // Populate tables with requirements
+          data.data.forEach(requirement => {
+            const row = document.createElement('tr');
+            row.setAttribute('data-id', requirement.id);
+            row.innerHTML = `
+              <td><span class="requirement-type ${requirement.requirement_type === 'pre' ? 'pre-ojt' : 'post-ojt'}">${requirement.requirement_name}</span></td>
+              <td style="vertical-align: middle;">
+                <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                  <button class="edit-btn" onclick="editRequirement(this)">Edit</button>
+                </div>
+              </td>
+            `;
+            
+            if (requirement.requirement_type === 'pre') {
+              preOjtTable.appendChild(row);
+            } else {
+              postOjtTable.appendChild(row);
+            }
+          });
+        } else {
+          console.error('Error loading requirements:', data.message);
+        }
+      } catch (error) {
+        console.error('Error loading requirements:', error);
+      }
+    }
+
+    function editRequirement(button) {
+      rowToEdit = button.closest("tr");
+      const currentText = rowToEdit.querySelector(".requirement-type").textContent;
+      const isPre = rowToEdit.querySelector(".requirement-type").classList.contains('pre-ojt');
+      const currentType = isPre ? 'pre' : 'post';
+      const requirementId = rowToEdit.getAttribute('data-id');
+
+      const iframe = document.getElementById("editIframe");
+      const iframeSrc = `admin_requirementsEdit.html?requirementName=${encodeURIComponent(currentText)}&requirementType=${currentType}&id=${requirementId}`;
+      iframe.src = iframeSrc;
+
+      document.getElementById("editRequirementModal").style.display = "flex";
+      disableBackgroundScroll();
+    }
+
+    function saveEdit(newValue, newType, requirementId) {
+      if (rowToEdit && newValue) {
+        // Send update to server
+        fetch('php/requirements_handler.php?action=edit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: requirementId,
+            requirement_name: newValue,
+            requirement_type: newType
+          })
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            closeEditModal();
+            Swal.fire({
+              icon: 'success',
+              title: 'Updated!',
+              text: 'Requirement has been updated successfully.',
+              timer: 1500
+            });
+            // Reload requirements to update order and positions
+            loadRequirements();
+          } else {
+            throw new Error(result.message || 'Failed to update requirement');
+          }
+        })
+        .catch(error => {
+          console.error('Error updating requirement:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Failed to update requirement. Please try again.'
+          });
+        });
+      }
+    }
+
+    function openOptionModal() {
+      document.getElementById("addRequirementModal").style.display = "flex";
+      disableBackgroundScroll();
+    }
+
+    function closeAddModal() {
+      document.getElementById("addRequirementModal").style.display = "none";
+      enableBackgroundScroll();
+    }
+
+    function closeEditModal() {
+      document.getElementById("editRequirementModal").style.display = "none";
+      enableBackgroundScroll();
+    }
+
+    function disableBackgroundScroll() {
+      document.body.classList.add('no-scroll');
+    }
+
+    function enableBackgroundScroll() {
+      document.body.classList.remove('no-scroll');
+    }
+
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

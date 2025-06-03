@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta charset="UTF-8" />
+  <title>OJT Coordinator Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 1450px;
+      margin: auto;
+      background-color: #fff;
+      border-radius: 25px;
+      box-shadow: 0 0 12px #ccc;
+      overflow: hidden;
+    }
+
+    .header {
+      background-color: #025b2c;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      border-top-left-radius: 25px;
+      border-top-right-radius: 25px;
+    }
+
+    .header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .edit-button {
+      background-color: #888;
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edit-button img {
+      width: 18px;
+      height: 18px;
+    }
+
+    .edit-button:hover {
+      background-color: #dfd61e;
+      color: black;
+    }
+
+    .profile-body {
+      padding: 40px 50px;
+    }
+
+    .top-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 35px;
+    }
+
+    .profile-pic-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin-right: 40px;
+      cursor: pointer;
+    }
+
+    .profile-pic {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: #ccc;
+      object-fit: cover;
+      border: 2px solid #999;
+    }
+
+    .profile-pic-wrapper:hover::after {
+      content: "Click to change";
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      font-size: 12px;
+      text-align: center;
+      border-bottom-left-radius: 50%;
+      border-bottom-right-radius: 50%;
+      padding: 4px 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px 50px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .form-group label {
+      color: #025b2c;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      padding: 12px 40px 12px 12px;
+      font-size: 15px;
+      border: 1px solid #000;
+      border-radius: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .form-group input:disabled {
+      background-color: #f1f1f1;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 36px;
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    .action-buttons {
+      margin-top: 40px;
+      display: none;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .cancel-button, .save-button {
+      padding: 12px 26px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .cancel-button {
+      background-color: #ccc;
+    }
+
+    .save-button {
+      background-color: #02602e;
+      color: white;
+    }
+
+    .save-button:hover {
+      background-color: #dfd61e;
+      color: black;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal-box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .modal-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .modal-buttons .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .dark-mode {
+    background-color: #292b40;
+    color: #f1f1f1;
+    }
+
+    body.dark-mode table, body-dark-mode th, body-dark-mode td,
+    body.light-mode table, body-light-mode th, body-light-mode td {
+      color: #000 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>OJT Coordinator Profile</h2>
+      <button class="edit-button" onclick="toggleEdit()">
+        <img src="icons/edit.png" alt="Edit Icon" />
+        <span>EDIT</span>
+      </button>
+    </div>
+    <div class="profile-body">
+      <div class="top-section">
+        <label for="profile-upload" class="profile-pic-wrapper">
+          <img src="icons/profile.png" class="profile-pic" id="profilePreview" alt="Profile Picture" />
+        </label>
+        <input type="file" id="profile-upload" accept="image/*" onchange="previewImage(event)" />
+        
+        <div class="form-group" style="flex: 1;">
+          <label>FULL NAME</label>
+          <input type="text" id="fullName" disabled />
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group"><label>JOB DESCRIPTION</label><input type="text" id="jobDescription" disabled /></div>
+        <div class="form-group"><label>EMAIL</label><input type="email" id="email" disabled /></div>
+        <div class="form-group"><label>CONTACT NUMBER</label><input type="text" id="contactNumber" disabled /></div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="cancel-button" onclick="toggleEdit(true)">CANCEL</button>
+        <button class="save-button" onclick="saveChanges()">SAVE CHANGES</button>
+      </div>
+    </div> 
+    
+    <div id="saveModal" class="modal-overlay">
+      <div class="modal-box">
+        <h2 style="color: #02602e;">Are you sure you want to save changes</h2>
+        <div class="modal-buttons">
+          <button class="save-button" onclick="confirmSave()">Yes</button>
+          <button class="cancel-button" onclick="closeSaveModal()">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let editMode = false;
+    let profileImageChanged = false;
+    let profileImageFile = null;
+    let originalData = {};
+
+    // Load coordinator data from database
+    window.onload = function() {
+      fetch('php/get_coordinator_info.php')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            populateForm(data.profile);
+            originalData = data.profile;
+          } else {
+            alert("Error loading coordinator data: " + data.message);
+            // Redirect to login if unauthorized
+            if (data.message.includes("Unauthorized")) {
+              window.location.href = 'login.php';
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert("An error occurred while loading coordinator data.");
+        });
+    };
+
+    function populateForm(coordinatorData) {
+      document.getElementById('fullName').value = coordinatorData.full_name || '';
+      document.getElementById('jobDescription').value = coordinatorData.job_description || '';
+      document.getElementById('email').value = coordinatorData.email || '';
+      document.getElementById('contactNumber').value = coordinatorData.contact_number || '';
+      
+      // Load profile image if exists
+      if (coordinatorData.profile_image) {
+        let imgUrl = coordinatorData.profile_image;
+        if (!/^https?:\/\//.test(imgUrl)) {
+          imgUrl = window.location.origin + '/upsystem/html/' + imgUrl.replace(/^\/*/, '');
+        }
+        document.getElementById('profilePreview').src = imgUrl;
+        document.getElementById('profilePreview').style.display = '';
+      } else {
+        document.getElementById('profilePreview').src = '';
+        document.getElementById('profilePreview').style.display = 'none';
+      }
+    }
+
+    // Add fallback for broken images
+    const profileImg = document.getElementById('profilePreview');
+    if (profileImg) {
+      profileImg.onerror = function() {
+        this.src = '';
+        this.style.display = 'none';
+      };
+    }
+
+    function toggleEdit(cancel = false) {
+      const inputs = document.querySelectorAll('.form-group input:not(#employeeId)');
+      const actionButtons = document.querySelector('.action-buttons');
+
+      if (cancel) {
+        editMode = false;
+        // Reset form values to original
+        populateForm(originalData);
+        inputs.forEach(input => {
+          input.disabled = true;
+          input.style.backgroundColor = '#f1f1f1';
+        });
+        actionButtons.style.display = 'none';
+        profileImageChanged = false;
+        document.getElementById('profilePreview').src = originalData.profile_image || 'icons/profile.png';
+      } else {
+        editMode = !editMode;
+        const isEditing = editMode;
+        inputs.forEach(input => {
+          input.disabled = !isEditing;
+          input.style.backgroundColor = isEditing ? '#fff' : '#f1f1f1';
+        });
+        actionButtons.style.display = isEditing ? 'flex' : 'none';
+      }
+    }
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const output = document.getElementById('profilePreview');
+          output.src = e.target.result;
+          profileImageChanged = true;
+          profileImageFile = file;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveChanges() {
+      document.getElementById("saveModal").style.display = "flex";
+    }
+
+    function confirmSave() {
+      // Get form data
+      const formData = new FormData();
+      formData.append('full_name', document.getElementById('fullName').value);
+      formData.append('job_description', document.getElementById('jobDescription').value);
+      formData.append('email', document.getElementById('email').value);
+      formData.append('contact_number', document.getElementById('contactNumber').value);
+      
+      if (profileImageChanged && profileImageFile) {
+        formData.append('profile_image', profileImageFile);
+      }
+
+      fetch('php/update_coordinator_info.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Profile updated successfully!',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          originalData = {
+            full_name: document.getElementById('fullName').value,
+            job_description: document.getElementById('jobDescription').value,
+            email: document.getElementById('email').value,
+            contact_number: document.getElementById('contactNumber').value,
+            profile_image: data.profile_image || originalData.profile_image
+          };
+          if (data.profile_image) {
+            let imgUrl = data.profile_image;
+            if (!/^https?:\/\//.test(imgUrl)) {
+              imgUrl = window.location.origin + '/upsystem/html/' + imgUrl.replace(/^\/*/, '');
+            }
+            document.getElementById('profilePreview').src = imgUrl;
+            document.getElementById('profilePreview').style.display = '';
+            localStorage.setItem('coordinatorProfileImage', imgUrl);
+            window.parent.postMessage({
+              type: 'UPDATE_PROFILE_IMAGE',
+              imageUrl: imgUrl + '?t=' + new Date().getTime()
+            }, '*');
+            setTimeout(function() {
+              window.parent.location.reload();
+            }, 500);
+          }
+          toggleEdit(true);
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: "Error updating profile: " + data.message
+          });
+        }
+        closeSaveModal();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: "An error occurred while updating profile."
+        });
+        closeSaveModal();
+      });
+    }
+
+    function closeSaveModal() {
+      document.getElementById("saveModal").style.display = "none";
+    }
+
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'DARK_MODE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+    }
+  });
+  </script>
+</body>
+</html>

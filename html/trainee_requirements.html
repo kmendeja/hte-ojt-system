@@ -1,0 +1,594 @@
+<?php include_once 'php/check_trainee_access.php'; ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requirements Submission</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .requirements-section {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .section-header {
+            background-color: #0e6c38;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header button {
+            background-color: #f5cc00;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .section-header button:hover {
+            background-color: #e6bf00;
+        }
+
+        .requirements-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .requirements-table th,
+        .requirements-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .requirements-table th {
+            background-color: #0e6c38;
+            color: white;
+        }
+
+        .requirements-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .file-upload-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-btn {
+            background: #0e6c38;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .file-name {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: #ffd700;
+            color: #000;
+        }
+
+        .status-approved {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .status-rejected {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .status-badge small {
+            display: block;
+            font-size: 0.85em;
+            margin-top: 4px;
+            font-weight: normal;
+        }
+
+        .file-upload-container a {
+            color: #0e6c38;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .file-upload-container a:hover {
+            text-decoration: underline;
+        }
+
+        .submit-btn {
+            background: #0e6c38;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            float: right;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #0b5a2e;
+        }
+
+        .warning-text {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .section-header button {
+                width: 100%;
+            }
+        }
+
+        .section-locked {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .section-locked::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .lock-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            z-index: 2;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pre-OJT Requirements Section -->
+        <div id="preOjtSection" class="requirements-section">
+            <div class="section-header">
+                <h2>Pre-OJT Requirements</h2>
+                <button onclick="submitPreRequirements()" class="submit-btn" id="preOjtSubmitBtn">Submit Pre-OJT Requirements</button>
+            </div>
+            <p class="warning-text">* All Pre-OJT requirements must be submitted and approved before starting OJT</p>
+            <table class="requirements-table" id="preOjtTableWrapper">
+                <thead>
+                    <tr>
+                        <th>Requirement</th>
+                        <th>File Upload</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="preOjtTable">
+                    <!-- Pre-OJT requirements will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Post-OJT Requirements Section -->
+        <div class="requirements-section">
+            <div class="section-header">
+                <h2>Post-OJT Requirements</h2>
+                <button onclick="submitPostRequirements()" class="submit-btn" disabled>Submit Post-OJT Requirements</button>
+            </div>
+            <table class="requirements-table">
+                <thead>
+                    <tr>
+                        <th>Requirement</th>
+                        <th>File Upload</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="postOjtTable">
+                    <!-- Post-OJT requirements will be populated here -->
+                </tbody>
+            </table>
+            <div id="postOjtLockMessage" class="lock-message">Post-OJT requirements will be unlocked after completing your OJT</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    <script>
+        let preOjtRequirements = [];
+        let postOjtRequirements = [];
+        let ojtStatus = 'pending'; // Can be 'pending', 'ongoing', or 'completed'
+        let allPreApproved = false;
+
+        // Fetch requirements from backend and initialize tables
+        function fetchRequirementsAndLoad() {
+            fetch('php/requirements_handler.php?action=get')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    if (data.success) {
+                        preOjtRequirements = data.data.filter(r => r.requirement_type === 'pre');
+                        postOjtRequirements = data.data.filter(r => r.requirement_type === 'post');
+                        loadSubmissions('pre');
+                        loadSubmissions('post');
+                    } else {
+                        console.error('Error fetching requirements:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error fetching requirements:', error));
+        }
+
+        // Initialize tables when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchRequirementsAndLoad();
+            checkOjtStatus();
+        });
+
+        function loadSubmissions(type) {
+            fetch(`php/get_trainee_requirements.php?type=${type}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    if (data.success) {
+                        const tableId = type === 'pre' ? 'preOjtTable' : 'postOjtTable';
+                        const requirements = type === 'pre' ? preOjtRequirements : postOjtRequirements;
+                        const submissionMap = {};
+                        for (const key in data.submissions) {
+                            const sub = data.submissions[key];
+                            if (sub && sub.requirement_name && sub.requirement_type) {
+                                submissionMap[sub.requirement_name + '||' + sub.requirement_type] = sub;
+                            }
+                        }
+                        updateTable(tableId, requirements, submissionMap);
+                        if (type === 'pre') {
+                            // Check if all pre-OJT requirements are approved
+                            allPreApproved = Object.values(submissionMap).length === requirements.length &&
+                                Object.values(submissionMap).every(sub => sub.status === 'Approved');
+                            handlePreOjtSectionDisplay();
+                        }
+                    } else {
+                        console.error('Error loading submissions:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error loading submissions:', error));
+        }
+
+        function updateTable(tableId, requirements, submissions) {
+            const tbody = document.getElementById(tableId);
+            tbody.innerHTML = '';
+
+            requirements.forEach(req => {
+                // Use composite key for mapping
+                const submission = submissions[req.requirement_name + '||' + req.requirement_type];
+                // Hide approved requirements
+                if (submission && (submission.status === 'approved' || submission.status === 'Approved')) {
+                    return; // Skip rendering this row
+                }
+                let statusText = 'Not Uploaded';
+                let statusClass = 'not-uploaded';
+                if (submission) {
+                    if (submission.status === 'pending' || submission.status === 'Pending / Under Review') {
+                        statusText = 'Pending / Under Review';
+                        statusClass = 'pending';
+                    } else if (submission.status === 'rejected' || submission.status === 'Rejected') {
+                        statusText = 'Rejected';
+                        statusClass = 'rejected';
+                    } else if (submission.status) {
+                        statusText = submission.status;
+                        statusClass = submission.status.toLowerCase();
+                    }
+                }
+                let statusHtml = `<span class="status-badge status-${statusClass}">${statusText}${submission && submission.remarks ? `<br><small>${submission.remarks}</small>` : ''}</span>`;
+                let fileHtml = `
+                    <div class="file-upload-container">
+                        <button class="upload-btn" onclick="uploadFile(this, ${req.id})">Upload File</button>
+                        <span class="file-name"></span>
+                        <input type="file" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                    </div>`;
+                if (submission && submission.file && submission.file.path && submission.file.original_name) {
+                    let fileUrl = '';
+                    if (req.requirement_type === 'pre') {
+                        fileUrl = `/upsystem/html/uploads/pre/${submission.file.path.split('/').pop()}`;
+                    } else {
+                        fileUrl = `/upsystem/uploads/post/${submission.file.path.split('/').pop()}`;
+                    }
+                    fileHtml = `
+                        <div class="file-upload-container">
+                            <a href="${fileUrl}" target="_blank">${submission.file.original_name}</a>
+                            ${statusClass === 'rejected' ? `
+                                <button class="upload-btn" onclick="uploadFile(this, ${req.id})">Upload New</button>
+                                <span class="file-name"></span>
+                                <input type="file" style="display: none;" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            ` : ''}
+                        </div>`;
+                }
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${req.requirement_name}</td>
+                    <td>${fileHtml}</td>
+                    <td>${statusHtml}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function uploadFile(button, requirementId) {
+            const container = button.closest('.file-upload-container');
+            const input = container.querySelector('input[type="file"]');
+            const fileNameSpan = container.querySelector('.file-name');
+            const statusBadge = container.closest('tr').querySelector('.status-badge');
+            input.click();
+            input.onchange = function() {
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    if (file.size > 5 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'File too large',
+                            text: 'Maximum file size is 5MB'
+                        });
+                        this.value = '';
+                        return;
+                    }
+                    // Hide the old file link if it exists
+                    const oldFileLink = container.querySelector('a');
+                    if (oldFileLink) oldFileLink.style.display = 'none';
+
+                    fileNameSpan.textContent = file.name;
+                    statusBadge.textContent = 'Ready to Submit';
+                    statusBadge.className = 'status-badge status-ready';
+                    input.setAttribute('data-requirement-id', requirementId);
+                }
+            };
+        }
+
+        function submitPreRequirements() {
+            const formData = new FormData();
+            let hasFiles = false;
+            document.querySelectorAll('#preOjtTable input[type="file"]').forEach((input) => {
+                if (input.files.length > 0) {
+                    formData.append('files[]', input.files[0]);
+                    formData.append('requirements[]', input.getAttribute('data-requirement-id'));
+                    hasFiles = true;
+                }
+            });
+            if (!hasFiles) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No files selected',
+                    text: 'Please upload at least one requirement file'
+                });
+                return;
+            }
+            formData.append('type', 'pre');
+            fetch('php/submit_requirements.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Requirements submitted successfully'
+                    }).then(() => {
+                        fetchRequirementsAndLoad();
+                    });
+                } else {
+                    throw new Error(data.message || 'Failed to submit requirements');
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                });
+            });
+        }
+
+        function submitPostRequirements() {
+            const formData = new FormData();
+            let hasFiles = false;
+            document.querySelectorAll('#postOjtTable input[type="file"]').forEach((input) => {
+                if (input.files.length > 0) {
+                    formData.append('files[]', input.files[0]);
+                    formData.append('requirements[]', input.getAttribute('data-requirement-id'));
+                    hasFiles = true;
+                }
+            });
+            if (!hasFiles) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No files selected',
+                    text: 'Please upload at least one requirement file'
+                });
+                return;
+            }
+            formData.append('type', 'post');
+            fetch('php/submit_requirements.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Requirements submitted successfully'
+                    }).then(() => {
+                        fetchRequirementsAndLoad();
+                    });
+                } else {
+                    throw new Error(data.message || 'Failed to submit requirements');
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                });
+            });
+        }
+
+        function checkOjtStatus() {
+            fetch('php/get_ojt_status.php')
+                .then(response => response.json())
+                .then(data => {
+                    ojtStatus = data.status;
+                    updateUIBasedOnStatus();
+                })
+                .catch(error => {
+                    console.error('Error checking OJT status:', error);
+                });
+        }
+
+        function updateUIBasedOnStatus() {
+            const postOjtSection = document.querySelector('.requirements-section:nth-child(2)');
+            const postSubmitBtn = postOjtSection.querySelector('.submit-btn');
+            const lockMessage = document.getElementById('postOjtLockMessage');
+            const certBtnId = 'certificateBtn';
+
+            if (ojtStatus === 'completed') {
+                postSubmitBtn.disabled = false;
+                lockMessage.style.display = 'none';
+                postOjtSection.classList.remove('section-locked');
+
+                // Check if all post-requirements are approved
+                const postRows = document.querySelectorAll('#postOjtTable .status-badge');
+                let allPostApproved = true;
+                if (postRows.length === 0) {
+                    allPostApproved = false;
+                } else {
+                    postRows.forEach(badge => {
+                        if (badge.textContent.trim() !== 'Approved') {
+                            allPostApproved = false;
+                        }
+                    });
+                }
+                let certBtn = document.getElementById(certBtnId);
+                if (allPostApproved) {
+                    if (!certBtn) {
+                        certBtn = document.createElement('button');
+                        certBtn.id = certBtnId;
+                        certBtn.className = 'submit-btn';
+                        certBtn.textContent = 'Download Certificate';
+                        certBtn.onclick = () => window.location.href = 'trainee_certificate.html';
+                        postOjtSection.appendChild(certBtn);
+                    }
+                    certBtn.style.display = 'inline-block';
+                } else if (certBtn) {
+                    certBtn.style.display = 'none';
+                }
+            } else {
+                postSubmitBtn.disabled = true;
+                lockMessage.style.display = 'block';
+                postOjtSection.classList.add('section-locked');
+                let certBtn = document.getElementById(certBtnId);
+                if (certBtn) certBtn.style.display = 'none';
+            }
+        }
+
+        function handlePreOjtSectionDisplay() {
+            const preOjtSection = document.getElementById('preOjtSection');
+            const preOjtTableWrapper = document.getElementById('preOjtTableWrapper');
+            const preOjtSubmitBtn = document.getElementById('preOjtSubmitBtn');
+            if (allPreApproved) {
+                // Hide table and button, show message
+                preOjtTableWrapper.style.display = 'none';
+                preOjtSubmitBtn.style.display = 'none';
+                // Show a message
+                let msg = document.getElementById('preOjtApprovedMsg');
+                if (!msg) {
+                    msg = document.createElement('div');
+                    msg.id = 'preOjtApprovedMsg';
+                    msg.style.cssText = 'background:#e6ffe6;color:#02602e;padding:18px 20px;text-align:center;font-weight:bold;border-radius:10px;margin:20px 0;';
+                    msg.innerHTML = 'All Pre-OJT requirements are approved. You may now proceed to the next steps.';
+                    preOjtSection.appendChild(msg);
+                } else {
+                    msg.style.display = 'block';
+                }
+            } else {
+                // Show table and button, hide message
+                preOjtTableWrapper.style.display = '';
+                preOjtSubmitBtn.style.display = '';
+                let msg = document.getElementById('preOjtApprovedMsg');
+                if (msg) msg.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html> 

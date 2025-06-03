@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trainee Profile - Coordinator View</title>
+  <style>
+    body.dark-mode table, body-dark-mode th, body-dark-mode td,
+    body.light-mode table, body-light-mode th, body-light-mode td {
+      color: #000 !important;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .profile-container {
+      background-color: #02602e;
+      color: white;
+      width: 95%;
+      max-width: 1350px;
+      margin: 30px auto 10px;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-container, .attendance-container {
+      background-color: white;
+      color: black;
+      width: 95%;
+      max-width: 1350px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid white;
+      padding-bottom: 10px;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+    }
+
+    .profile img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-right: 20px;
+      object-fit: cover;
+      border: 3px solid white;
+    }
+
+    .profile-info h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .profile-info p {
+      margin: 5px 0 0;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .profile-buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .profile-buttons button {
+      background-color: #028a3d;
+      color: white;
+      padding: 10px 20px;
+      margin: 0 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .profile-buttons button:hover {
+      background-color: #dfd61e;
+    }
+
+    .task-item {
+      background: #fafafa;
+      padding: 20px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+
+    .task-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .action-buttons button {
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-accepted {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-rejected {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .remarks-section {
+      padding: 0.55px;
+      width: 350px;
+    }
+
+    .remarks-section input,
+    .remarks-section textarea {
+      width: 100%;
+      padding: 10px;
+      margin-right: 45px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .attendance-container {
+      display: none;
+      flex-direction: column;
+    }
+
+    .attendance-container h3 {
+      margin-top: 0;
+      color: #02602e;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      background-color: white;
+      padding: 15px 0;
+      gap: 15px;
+      flex-wrap: wrap;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .toolbar button {
+      background: #028a3d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar button img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .toolbar button:hover {
+      background-color: #dfd61e;
+    }
+    .sort-dropdown {
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid gray;
+    }
+
+    .attendance-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .attendance-table th {
+      background-color: #028a3d;
+      color: white;
+    }
+
+    .attendance-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .attendance-table tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    h3 {
+      text-align: center;
+      margin-top: 2px;
+      color: #02602e;
+      font-size: 24px;
+    }
+
+    .text-success {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .text-warning {
+      color: #ffc107;
+      font-weight: bold;
+    }
+
+    .text-danger {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+  </style>
+  <!-- Add SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Add SheetJS (XLSX) -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <!-- Add jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+  <!-- Profile Info Container -->
+  <div class="profile-container">
+    <div class="header">
+      <div class="profile">
+        <img id="profile-image" src="icons/profile.png" alt="Profile" />
+        <div class="profile-info">
+          <div style="display: flex; align-items: center;">
+            <h2 id="trainee-name" style="margin-right: 15px;">Loading...</h2>
+            <span id="total-hours-indicator" style="font-size:16px; color:#dfd61e;"></span>
+          </div>
+          <p id="trainee-details">Loading...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Attendance Container -->
+  <div class="task-container" id="task-section">
+    <h3>ATTENDANCE RECORD</h3>
+    <div class="toolbar">
+      <button onclick="generateReport()">
+        <img src="icons/generate.png" alt="Generate" /> GENERATE
+      </button>
+      <select class="sort-dropdown" onchange="sortTable(this.value)">
+        <option value="" disabled selected>SORT BY...</option>
+        <option value="recent">RECENT TO OLDEST</option>
+        <option value="oldest">OLDEST TO RECENT</option>
+        <option value="ontime">REMARK: ON TIME</option>
+        <option value="tardy">REMARK: TARDY</option>
+        <option value="absent">REMARK: ABSENT</option>
+      </select>
+    </div>
+    <table class="attendance-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Time In</th>
+          <th>Time Out</th>
+          <th>Working Hours</th>
+          <th>Remark</th>
+        </tr>
+      </thead>
+      <tbody id="attendance-body">
+        <!-- Attendance records will be loaded here -->
+      </tbody>
+    </table>
+  </div>
+
+<script>
+let traineeId = '';
+let attendanceLogs = [];
+
+function formatDate(dateString) {
+  if (!dateString) return "—";
+  const date = new Date(dateString);
+  if (isNaN(date)) return dateString;
+  return date.toLocaleDateString('en-PH', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
+function formatTime(timeString) {
+  if (!timeString || timeString === 'N/A') return "—";
+  
+  // If it's already in HH:MM:SS format, convert to 12-hour format
+  if (timeString.includes(':')) {
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    // Set to UTC+8 (Philippine time)
+    date.setUTCHours(parseInt(hours), parseInt(minutes));
+    
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Manila'
+    });
+  }
+  
+  return timeString;
+}
+
+function getRemark(timeIn) {
+  if (!timeIn || timeIn === 'N/A' || timeIn === '—') return 'Absent';
+  
+  // Convert time string to Date object for comparison
+  const [hours, minutes] = timeIn.split(':');
+  const inTime = new Date();
+  // Set to UTC+8 (Philippine time)
+  inTime.setUTCHours(parseInt(hours), parseInt(minutes), 0);
+  
+  const cutoffTime = new Date();
+  cutoffTime.setUTCHours(8, 30, 0); // 8:30 AM cutoff
+  
+  return inTime <= cutoffTime ? 'On Time' : 'Tardy';
+}
+
+function getRemarkClass(remark) {
+  switch(remark.toLowerCase()) {
+    case 'on time': return 'text-success';
+    case 'tardy': return 'text-warning';
+    case 'absent': return 'text-danger';
+    default: return '';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Get trainee_id from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  traineeId = urlParams.get('id');
+  
+  if (!traineeId) {
+    Swal.fire('Error', 'No trainee ID provided', 'error');
+    return;
+  }
+
+  loadTraineeInfo();
+  loadAttendanceLogs();
+});
+
+async function loadTraineeInfo() {
+  try {
+    const response = await fetch(`php/get_trainee.php?id=${traineeId}`);
+    const data = await response.json();
+    
+    if (data.success) {
+      const trainee = data.trainee;
+      document.getElementById('trainee-name').textContent = trainee.full_name;
+      document.getElementById('trainee-details').innerHTML = `${trainee.trainee_id}<br />${trainee.program}, ${trainee.section}`;
+      
+      if (trainee.profile_image) {
+        document.getElementById('profile-image').src = trainee.profile_image;
+      }
+    } else {
+      throw new Error(data.message || 'Failed to load trainee info');
+    }
+  } catch (error) {
+    console.error('Error loading trainee info:', error);
+    Swal.fire('Error', error.message || 'Failed to load trainee information', 'error');
+  }
+}
+
+async function loadAttendanceLogs() {
+  try {
+    console.log('About to fetch attendance logs for', traineeId);
+    const response = await fetch('php/attendance.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'getLogs', trainee_id: traineeId })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      attendanceLogs = data.data;
+      renderAttendanceTable(attendanceLogs);
+    } else {
+      throw new Error(data.message || 'Failed to load attendance logs');
+    }
+  } catch (error) {
+    console.error('Error loading attendance:', error);
+    Swal.fire('Error', error.message || 'Failed to load attendance records', 'error');
+  }
+}
+
+function renderAttendanceTable(logs) {
+  const tbody = document.getElementById('attendance-body');
+  tbody.innerHTML = '';
+  // Calculate total hours worked
+  let totalHours = 0;
+  if (logs && logs.length > 0) {
+    logs.forEach(log => {
+      const hours = parseFloat(log.hours_worked);
+      if (!isNaN(hours)) totalHours += hours;
+    });
+    const totalHoursIndicator = document.getElementById('total-hours-indicator');
+    if (totalHoursIndicator) {
+      totalHoursIndicator.textContent = `Total Hours: ${totalHours.toFixed(2)} hrs`;
+    }
+  } else {
+    const totalHoursIndicator = document.getElementById('total-hours-indicator');
+    if (totalHoursIndicator) {
+      totalHoursIndicator.textContent = '';
+    }
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No attendance records found</td></tr>';
+    return;
+  }
+  logs.forEach(log => {
+    const remark = getRemark(log.time_in);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${formatDate(log.date)}</td>
+      <td>${formatTime(log.time_in)}</td>
+      <td>${formatTime(log.time_out)}</td>
+      <td>${log.hours_worked || '—'}</td>
+      <td class="${getRemarkClass(remark)}">${remark}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function sortTable(sortBy) {
+  if (!attendanceLogs || !attendanceLogs.length) return;
+  
+  let sortedLogs = [...attendanceLogs];
+  
+  switch(sortBy) {
+    case 'recent':
+      sortedLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+      break;
+    case 'oldest':
+      sortedLogs.sort((a, b) => new Date(a.date) - new Date(b.date));
+      break;
+    case 'ontime':
+    case 'tardy':
+    case 'absent':
+      sortedLogs = sortedLogs.filter(log => getRemark(log.time_in).toLowerCase() === sortBy);
+      break;
+  }
+  
+  renderAttendanceTable(sortedLogs);
+}
+
+function generateReport() {
+  if (!attendanceLogs || attendanceLogs.length === 0) {
+    Swal.fire('No records', 'There are no attendance records to export.', 'warning');
+    return;
+  }
+
+  Swal.fire({
+    title: 'Export Attendance Record',
+    text: 'Select the format you want to export:',
+    input: 'select',
+    inputOptions: {
+      'excel': 'Excel (.xlsx)',
+      'pdf': 'PDF (.pdf)'
+    },
+    inputPlaceholder: 'Select format',
+    showCancelButton: true,
+    confirmButtonText: 'Export',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#028a3d'
+  }).then((result) => {
+    if (!result.isConfirmed) return;
+    
+    const format = result.value;
+    const data = attendanceLogs.map(log => [
+      formatDate(log.date),
+      formatTime(log.time_in),
+      formatTime(log.time_out),
+      log.hours_worked || '—',
+      getRemark(log.time_in)
+    ]);
+    
+    if (format === 'excel') {
+      const wb = XLSX.utils.book_new();
+      const ws_data = [
+        ['Date', 'Time In', 'Time Out', 'Working Hours', 'Remark'],
+        ...data
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+      XLSX.writeFile(wb, `Attendance_Record_${traineeId}.xlsx`);
+    } else if (format === 'pdf') {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("Attendance Record", 14, 15);
+      doc.autoTable({
+        startY: 20,
+        head: [['Date', 'Time In', 'Time Out', 'Working Hours', 'Remark']],
+        body: data,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [2, 138, 61] }
+      });
+      doc.save(`Attendance_Record_${traineeId}.pdf`);
+    }
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Success!',
+      text: `${format.toUpperCase()} file has been generated.`,
+      confirmButtonColor: '#028a3d'
+    });
+  });
+}
+
+// Handle dark mode
+window.addEventListener('message', function(event) {
+  if (event.data.type === 'DARK_MODE') {
+    const isDark = event.data.isDark;
+    if (isDark) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }
+});
+</script>
+</body>
+</html>

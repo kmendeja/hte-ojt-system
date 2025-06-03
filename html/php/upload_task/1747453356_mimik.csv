@@ -1,0 +1,6 @@
+student_id,program,section,school_year,last_name,first_name,middle_name,extension_name,email,username,contact_number
+23-001234,BSIT,BSIT-2A,2023-2024,Santos,Juan,Cruz,Jr,juan.santos@plpasig.edu.ph,juan.santos,09123456789
+23-001235,BSIT,BSIT-2A,2023-2024,Garcia,Maria,Luna,,maria.garcia@plpasig.edu.ph,maria.garcia,09234567890
+23-001236,BSIT,BSIT-2B,2023-2024,Reyes,Carlos,Magtanggol,,carlos.reyes@plpasig.edu.ph,carlos.reyes,09345678901
+23-001237,BSIT,BSIT-2B,2023-2024,Cruz,Ana,Santos,,ana.cruz@plpasig.edu.ph,ana.cruz,09456789012
+23-001238,BSIT,BSIT-2C,2023-2024,Gonzales,Miguel,Torres,III,miguel.gonzales@plpasig.edu.ph,miguel.gonzales,09567890123

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Trainee Deployment</title>
+  <!-- Add SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      background-color: #3b463e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .form-container {
+      background-color: #084018;
+      color: white;
+      width: 100%;
+      max-width: 1000px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-header {
+      background-color: white;
+      color: #084018;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-layout {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .company-section {
+      flex: 2;
+      min-width: 300px;
+    }
+
+    .form-section {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input, select {
+      padding: 0.75rem;
+      border: 2px solid #f5cc00;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background-color: white;
+      color: black;
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
+    select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black"><polygon points="0,0 16,0 8,8"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+}
+
+
+    .company-box {
+      background-color: #ffffff10;
+      border: 2px solid #f5cc00;
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 2px solid gray;
+      width: 90%;
+      margin-bottom: 1rem;
+    }
+
+    .search-bar input {
+      border: none;
+      outline: none;
+      padding: 5px;
+      width: 100%;
+    }
+
+    .checkbox-box {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .checkbox-box label {
+      font-weight: normal;
+      margin-bottom: 0.5rem;
+      display: block;
+      color: white;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: flex-end;
+    }
+
+    .clear-btn, .confirm-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .clear-btn {
+      background-color: #6b7280;
+      color: white;
+    }
+
+    .confirm-btn {
+      background-color: #f5cc00;
+      color: black;
+    }
+
+    @media (max-width: 768px) {
+      .form-container {
+        padding: 1rem;
+      }
+
+      .form-layout {
+        flex-direction: column;
+      }
+
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="form-header">EDIT TRAINEE DEPLOYMENT</div>
+
+    <form id="editDeploymentForm" onsubmit="submitDeployment(event)">
+      <div class="form-layout">
+        <!-- Left Section: Companies -->
+        <div class="company-section">
+          <div class="form-group">
+            <label>CORPORATE PARTNERS:</label>
+            <div class="company-box">
+              <div class="search-bar">
+                <input type="text" id="companySearch" placeholder="Search Company..." onkeyup="filterCompanies()">
+              </div>
+              <div class="checkbox-box" id="companyList">
+                <!-- Companies will be loaded dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Section: Other Fields -->
+        <div class="form-section">
+          <div class="form-group">
+            <label>NATURE OF WORK:</label>
+            <input type="text" id="natureOfWork" placeholder="Enter Job Description" required>
+          </div>
+
+          <div class="form-group">
+            <label for="deploymentDate">DEPLOYMENT DATE:</label>
+            <input type="date" id="deploymentDate" name="deploymentDate" required>
+            <input type="time" id="deploymentTime" name="deploymentTime" required>
+          </div>
+
+          <div class="form-group">
+            <label for="end_deploymentDate">END OF DEPLOYMENT DATE:</label>
+            <input type="date" id="end_deploymentDate" name="end_deploymentDate" required>
+            <input type="time" id="end_deploymentTime" name="end_deploymentTime" required>
+          </div>
+
+          <div class="form-group">
+            <label for="deploymentStatus">DEPLOYMENT STATUS:</label>
+            <select id="deploymentStatus" name="deploymentStatus" required>
+              <option value="not-deployed">Not Deployed</option>
+              <option value="deployed">Deployed</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="section">Section</label>
+            <select id="section" name="section" class="form-control" required>
+              <option value="">Loading...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="contact_number">Contact Number</label>
+            <input type="text" class="form-control" id="contact_number" name="contact_number" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="button" class="clear-btn" onclick="clearForm()">CLEAR</button>
+        <button type="submit" class="confirm-btn">CONFIRM</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Add SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+  <script>
+    let traineeId = null;
+    let companies = [];
+    let currentDeployment = null;
+    let isAlreadyDeployed = false;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get trainee_id from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      traineeId = urlParams.get('trainee_id');
+      
+      if (!traineeId) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No trainee ID provided',
+          confirmButtonColor: '#084018'
+        });
+        return;
+      }
+
+      // Show loading state
+      Swal.fire({
+        title: 'Loading...',
+        text: 'Fetching deployment data',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // Load companies and current deployment data
+      Promise.all([
+        loadCompanies(),
+        loadCurrentDeployment()
+      ]).then(() => {
+        Swal.close();
+        if (currentDeployment) {
+          populateForm();
+        }
+        // After loading deployment data, load coordinator sections
+        loadCoordinatorSections();
+      }).catch(error => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load data: ' + error.message,
+          confirmButtonColor: '#084018'
+        });
+      });
+    });
+
+    function loadCompanies() {
+      return fetch('php/deployment_operations.php?action=getCompanies')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            companies = data.data;
+            displayCompanies();
+          } else {
+            throw new Error(data.message || 'Failed to load companies');
+          }
+        });
+    }
+
+    function loadCurrentDeployment() {
+      return fetch(`php/deployment_operations.php?trainee_id=${traineeId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.data) {
+            currentDeployment = data.data;
+            if (currentDeployment.deployment_status === 'deployed') {
+              isAlreadyDeployed = true;
+              Swal.fire({
+                icon: 'info',
+                title: 'Already Deployed',
+                text: 'This trainee is already deployed to a company. You cannot deploy again.',
+                confirmButtonColor: '#084018'
+              });
+              document.querySelector('.confirm-btn').disabled = true;
+            }
+          } else {
+            throw new Error(data.message || 'Failed to load deployment data');
+          }
+        });
+    }
+
+    function displayCompanies() {
+      const companyList = document.getElementById('companyList');
+      companyList.innerHTML = '';
+
+      if (companies.length === 0) {
+        companyList.innerHTML = '<p style="color: white; text-align: center;">No companies available</p>';
+        return;
+      }
+
+      companies.forEach(company => {
+        const label = document.createElement('label');
+        label.innerHTML = `
+          <input type="radio" name="companies" value="${company.id}">
+          ${company.name}
+        `;
+        companyList.appendChild(label);
+      });
+    }
+
+    function populateForm() {
+      // Set nature of work
+      document.getElementById('natureOfWork').value = currentDeployment.nature_of_work || '';
+
+      // Set dates
+      if (currentDeployment.deployment_date) {
+        const deploymentDate = new Date(currentDeployment.deployment_date);
+        deploymentDate.setMinutes(deploymentDate.getMinutes() - deploymentDate.getTimezoneOffset());
+        document.getElementById('deploymentDate').value = deploymentDate.toISOString().slice(0, 10);
+        document.getElementById('deploymentTime').value = deploymentDate.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' }).replace(/ AM| PM/, '');
+      }
+      
+      if (currentDeployment.end_date) {
+        const endDate = new Date(currentDeployment.end_date);
+        endDate.setMinutes(endDate.getMinutes() - endDate.getTimezoneOffset());
+        document.getElementById('end_deploymentDate').value = endDate.toISOString().slice(0, 10);
+        document.getElementById('end_deploymentTime').value = endDate.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' }).replace(/ AM| PM/, '');
+      }
+
+      // Set deployment status
+      document.getElementById('deploymentStatus').value = currentDeployment.deployment_status || 'not-deployed';
+
+      // Set contact number if available
+      if (currentDeployment.contact_number) {
+        document.getElementById('contact_number').value = currentDeployment.contact_number;
+      } else {
+        // Fetch contact number if not present
+        fetch('php/get_trainee.php?id=' + traineeId)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.trainee && data.trainee.contact_number) {
+              document.getElementById('contact_number').value = data.trainee.contact_number;
+            }
+          });
+      }
+
+      // Set selected company
+      if (currentDeployment.company_id) {
+        setTimeout(() => {
+          const companyRadio = document.querySelector(`input[name="companies"][value="${currentDeployment.company_id}"]`);
+          if (companyRadio) {
+            companyRadio.checked = true;
+          }
+        }, 100); // Small delay to ensure companies are loaded
+      }
+    }
+
+    function filterCompanies() {
+      const searchTerm = document.getElementById('companySearch').value.toLowerCase();
+      const labels = document.getElementById('companyList').getElementsByTagName('label');
+
+      for (let label of labels) {
+        const text = label.textContent || label.innerText;
+        label.style.display = text.toLowerCase().includes(searchTerm) ? '' : 'none';
+      }
+    }
+
+    function submitDeployment(event) {
+      event.preventDefault();
+      if (isAlreadyDeployed) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Already Deployed',
+          text: 'This trainee is already deployed and cannot be deployed again.',
+          confirmButtonColor: '#084018'
+        });
+        return;
+      }
+
+      const selectedCompany = document.querySelector('input[name="companies"]:checked');
+      if (!selectedCompany) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Missing Information',
+          text: 'Please select a company',
+          confirmButtonColor: '#084018'
+        });
+        return;
+      }
+
+      // Combine date and time fields into ISO string
+      const deploymentDate = document.getElementById('deploymentDate').value;
+      const deploymentTime = document.getElementById('deploymentTime').value;
+      const endDeploymentDate = document.getElementById('end_deploymentDate').value;
+      const endDeploymentTime = document.getElementById('end_deploymentTime').value;
+      const deploymentDateTime = deploymentDate + 'T' + deploymentTime;
+      const endDeploymentDateTime = endDeploymentDate + 'T' + endDeploymentTime;
+
+      const formData = {
+        trainee_id: traineeId,
+        company_id: selectedCompany.value,
+        nature_of_work: document.getElementById('natureOfWork').value,
+        deployment_date: deploymentDateTime,
+        end_date: endDeploymentDateTime,
+        deployment_status: document.getElementById('deploymentStatus').value,
+        contact_number: document.getElementById('contact_number').value
+      };
+
+      Swal.fire({
+        title: 'Update Deployment',
+        text: 'Are you sure you want to update this deployment?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#084018',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, update it!',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch('php/deployment_operations.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Deployment updated successfully',
+                confirmButtonColor: '#084018'
+              }).then(() => {
+                window.parent.closeModal();
+              });
+            } else {
+              throw new Error(data.message || 'Failed to update deployment');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to update deployment: ' + error.message,
+              confirmButtonColor: '#084018'
+            });
+          });
+        }
+      });
+    }
+
+    function clearForm() {
+      Swal.fire({
+        title: 'Clear Form',
+        text: 'Are you sure you want to clear all fields?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#084018',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, clear it!',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          document.getElementById('editDeploymentForm').reset();
+          Swal.fire({
+            icon: 'success',
+            title: 'Cleared',
+            text: 'Form has been cleared',
+            confirmButtonColor: '#084018'
+          });
+        }
+      });
+    }
+
+    function loadCoordinatorSections() {
+      fetch('php/get_coordinator_sections.php')
+        .then(response => response.json())
+        .then(data => {
+          const sectionSelect = document.getElementById('section');
+          sectionSelect.innerHTML = '';
+          if (data.success && data.assigned_sections && data.assigned_sections.length > 0) {
+            data.assigned_sections.forEach(sec => {
+              const option = document.createElement('option');
+              option.value = sec.section;
+              option.textContent = sec.section + (sec.program ? ' (' + sec.program + ')' : '');
+              sectionSelect.appendChild(option);
+            });
+          } else {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No sections assigned';
+            sectionSelect.appendChild(option);
+          }
+        })
+        .catch(() => {
+          const sectionSelect = document.getElementById('section');
+          sectionSelect.innerHTML = '';
+          const option = document.createElement('option');
+          option.value = '';
+          option.textContent = 'Error loading sections';
+          sectionSelect.appendChild(option);
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OJT Completion Certificate</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/trainee_certificate.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="certificate-container">
+        <div class="certificate-card">
+            <div class="certificate-header">
+                <img src="icons/certificate.png" alt="Certificate Icon" class="certificate-icon">
+                <h1>OJT Completion Certificate</h1>
+            </div>
+            <div class="certificate-body">
+                <h2 id="traineeName">Loading...</h2>
+                <div id="certificateStatus" class="certificate-status">Checking eligibility...</div>
+                <button id="downloadCertificate" class="btn-primary" style="display:none;">Download Certificate</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Fetch trainee info for name
+        let traineeName = '';
+        try {
+            const infoRes = await fetch('php/get_trainee_info.php');
+            const infoData = await infoRes.json();
+            if (infoData.success && infoData.profile && infoData.profile.full_name) {
+                traineeName = infoData.profile.full_name;
+                document.getElementById('traineeName').textContent = traineeName;
+            } else {
+                document.getElementById('traineeName').textContent = 'Trainee';
+            }
+        } catch (e) {
+            document.getElementById('traineeName').textContent = 'Trainee';
+        }
+
+        // Check eligibility for certificate
+        try {
+            const certRes = await fetch('php/generate_certificate.php');
+            const certData = await certRes.json();
+            const statusDiv = document.getElementById('certificateStatus');
+            const downloadBtn = document.getElementById('downloadCertificate');
+            if (certData.success && certData.filepath) {
+                statusDiv.innerHTML = `<span class='success-msg'>Congratulations, you are eligible to download your certificate!</span>`;
+                downloadBtn.style.display = 'inline-block';
+                downloadBtn.onclick = function() {
+                    const link = document.createElement('a');
+                    link.href = certData.filepath;
+                    link.download = certData.filepath.split('/').pop();
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+            } else {
+                statusDiv.innerHTML = `<span class='pending-msg'>${certData.message || 'You are not yet eligible to download your certificate.'}</span>`;
+                downloadBtn.style.display = 'none';
+            }
+        } catch (e) {
+            document.getElementById('certificateStatus').innerHTML = `<span class='pending-msg'>Unable to check eligibility at this time.</span>`;
+        }
+    });
+    </script>
+</body>
+</html> 

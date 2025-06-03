@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin-Edit Corporate Partner</title>
+  <style>
+    :root {
+      --primary: #084018;
+      --accent: #f5cc00;
+      --bg: #3b463e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      background-color: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .form-container {
+      background-color: var(--primary);
+      color: white;
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-header {
+      background-color: white;
+      color: var(--primary);
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-grid, .form-grid-wide {
+      display: grid;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .form-grid-wide {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .mb-spacing {
+      margin-bottom: 2rem;
+    }
+
+    .align-top-input input {
+      margin-top: 1.9rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input, select {
+      padding: 0.75rem;
+      border: 2px solid var(--accent);
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background-color: white;
+      color: black;
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
+    .upload-btn {
+      background-color: var(--accent);
+      color: black;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+    }
+
+    .upload-btn img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .clear-btn, .confirm-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .clear-btn {
+      background-color: #6b7280;
+      color: white;
+    }
+
+    .confirm-btn {
+      background-color: var(--accent);
+      color: black;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      z-index: 1000;
+      animation: slideIn 0.5s ease-out;
+    }
+    
+    .notification.success {
+      background-color: #4CAF50;
+    }
+    
+    .notification.error {
+      background-color: #f44336;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .form-container {
+        padding: 1rem;
+      }
+
+      .form-grid-wide, .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .clear-btn, .confirm-btn {
+        width: 100%;
+      }
+
+      .upload-btn {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="form-header">EDIT CORPORATE PARTNER</div>
+    <form id="editCompanyForm" enctype="multipart/form-data">
+      <input type="hidden" name="id" id="companyId">
+      <input type="hidden" name="current_logo" id="currentLogo">
+      <input type="hidden" name="current_documents" id="currentDocuments">
+      
+      <div class="form-group mb-spacing">
+        <label>CORPORATE NAME:</label>
+        <input type="text" name="name" id="companyName" placeholder="Enter Company Name" required>
+      </div>
+  
+      <div class="form-grid-wide">
+        <div class="form-group">
+          <label>EFFECTIVE DATE:</label>
+          <input type="date" name="effective_date" id="effectiveDate" required>
+        </div>
+        <div class="form-group">
+          <label>UPLOAD LOGO:</label>
+          <input type="file" name="logo" id="logoInput" accept="image/*" style="display: none;">
+          <button type="button" class="upload-btn" onclick="document.getElementById('logoInput').click()">
+            <img src="https://www.svgrepo.com/show/33565/upload.svg" alt="Upload" />
+            Upload File
+          </button>
+        </div>
+      </div>
+
+      <div class="form-grid-wide">
+        <div class="form-group">
+          <label>ADDRESS:</label>
+          <input type="text" name="address" id="address" placeholder="No/ Floor / Bldg." required>
+        </div>
+        <div class="form-group align-top-input">
+          <input type="text" name="street" id="street" placeholder="Street" required>
+        </div>
+      </div>
+    
+      <div class="form-grid-wide">
+        <div class="form-group">
+          <input type="text" name="barangay" id="barangay" placeholder="Barangay" required>
+        </div>
+        <div class="form-group">
+          <input type="text" name="city" id="city" placeholder="City/Province" required>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>CORPORATE EMAIL:</label>
+          <input type="email" name="corporate_email" id="corporateEmail" placeholder="Enter Company Email" required>
+        </div>
+        <div class="form-group">
+          <label>CORPORATE CONTACT NUMBER:</label>
+          <input type="text" name="corporate_contact" id="corporateContact" placeholder="Enter Company Contact Number" required>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>CONTACT PERSON:</label>
+          <input type="text" name="contact_person" id="contactPerson" placeholder="Enter Contact Person" required>
+        </div>
+        <div class="form-group">
+          <label>JOB POSITION:</label>
+          <input type="text" name="position" id="position" placeholder="Enter Job Position" required>
+        </div>
+        <div class="form-group">
+          <label>CONTACT NUMBER:</label>
+          <input type="text" name="contact_number" id="contactNumber" placeholder="Enter Contact Number" required>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>EMAIL:</label>
+          <input type="email" name="email" id="email" placeholder="Enter Email" required>
+        </div>
+        <div class="form-group">
+          <label>UPLOAD FILE:</label>
+          <input type="file" name="documents" id="docInput" accept=".pdf,.doc,.docx" style="display: none;">
+          <button type="button" class="upload-btn" onclick="document.getElementById('docInput').click()">
+            <img src="https://www.svgrepo.com/show/33565/upload.svg" alt="Upload" />
+            Upload File
+          </button>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="button" class="clear-btn" onclick="window.parent.closeModal()">CANCEL</button>
+        <button type="submit" class="confirm-btn">SAVE CHANGES</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Load company data when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const companyId = localStorage.getItem('editCompanyId');
+        if (companyId) {
+            // Show loading state
+            Swal.fire({
+                title: 'Loading...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            loadCompanyData(companyId);
+        }
+    });
+
+    function loadCompanyData(id) {
+        fetch('php/company_operations.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=get&id=${id}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const company = data.data;
+                
+                // Set form values
+                document.getElementById('companyId').value = company.id;
+                document.getElementById('companyName').value = company.name;
+                document.getElementById('effectiveDate').value = company.effective_date;
+                document.getElementById('currentLogo').value = company.logo;
+                document.getElementById('currentDocuments').value = company.documents;
+                
+                // Split address into components
+                const addressParts = company.address.split(', ');
+                document.getElementById('address').value = addressParts[0] || '';
+                document.getElementById('street').value = addressParts[1] || '';
+                document.getElementById('barangay').value = addressParts[2] || '';
+                document.getElementById('city').value = addressParts[3] || '';
+                
+                document.getElementById('corporateEmail').value = company.corporate_email;
+                document.getElementById('corporateContact').value = company.corporate_contact;
+                document.getElementById('contactPerson').value = company.contact_person;
+                document.getElementById('position').value = company.position;
+                document.getElementById('contactNumber').value = company.contact_number;
+                document.getElementById('email').value = company.email;
+
+                // Close loading state
+                Swal.close();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load company data. Please try again.',
+                    confirmButtonColor: '#084018'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to load company data. Please try again.',
+                confirmButtonColor: '#084018'
+            });
+        });
+    }
+
+    function showNotification(message, type) {
+        Swal.fire({ 
+            icon: type, 
+            title: type === 'success' ? 'Success!' : 'Error', 
+            text: message,
+            confirmButtonColor: type === 'success' ? '#084018' : '#d33'
+        });
+    }
+
+    document.getElementById('editCompanyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('action', 'update');
+        
+        // Combine address fields
+        const address = `${formData.get('address')}, ${formData.get('street')}, ${formData.get('barangay')}, ${formData.get('city')}`;
+        formData.set('address', address);
+        
+        fetch('php/company_operations.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Company updated successfully.',
+                    confirmButtonColor: '#084018'
+                }).then(() => {
+                    window.parent.postMessage({ type: 'COMPANY_UPDATED' }, '*');
+                    if (window.parent && window.parent !== window) {
+                        window.parent.closeModal();
+                    }
+                });
+            } else {
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'Error', 
+                    text: data.message || 'An error occurred.', 
+                    confirmButtonColor: '#d33' 
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'Error', 
+                text: 'Error updating company: ' + error, 
+                confirmButtonColor: '#d33' 
+            });
+        });
+    });
+
+    // Update button text when files are selected
+    document.getElementById('logoInput').addEventListener('change', function(e) {
+        const button = this.previousElementSibling;
+        if (this.files.length > 0) {
+            button.textContent = this.files[0].name;
+        } else {
+            button.innerHTML = '<img src="https://www.svgrepo.com/show/33565/upload.svg" alt="Upload" /> Upload File';
+        }
+    });
+
+    document.getElementById('docInput').addEventListener('change', function(e) {
+        const button = this.previousElementSibling;
+        if (this.files.length > 0) {
+            button.textContent = this.files[0].name;
+        } else {
+            button.innerHTML = '<img src="https://www.svgrepo.com/show/33565/upload.svg" alt="Upload" /> Upload File';
+        }
+    });
+  </script>
+</body>
+</html>

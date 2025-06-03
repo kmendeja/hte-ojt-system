@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin-Edit Coordinator</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      background-color: #3b463e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .form-container {
+      background-color: #084018;
+      color: white;
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-header {
+      background-color: white;
+      color: #084018;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-grid, .form-grid-wide {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .form-grid-wide {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input, select {
+      padding: 0.75rem;
+      border: 2px solid #f5cc00;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background-color: white;
+      color: black;
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
+    .upload-btn {
+      background-color: #f5cc00;
+      color: black;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      width: 90%;       /* Full width */
+      height: 100%;      /* Full height like input */
+    }
+
+    .upload-btn img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: flex-end;
+    }
+
+    .clear-btn, .confirm-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .clear-btn {
+      background-color: #6b7280;
+      color: white;
+    }
+
+    .confirm-btn {
+      background-color: #f5cc00;
+      color: black;
+    }
+
+    @media (max-width: 768px) {
+      .form-container {
+        padding: 1rem;
+      }
+
+      .form-grid, .form-grid-wide {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<span class="close-btn" onclick="closeModal()">&times;</span>
+  <div class="form-container">
+    <div class="form-header">EDIT OJT COORDINATOR</div>
+
+    <form id="editCoordinatorForm" enctype="multipart/form-data">
+      <input type="hidden" name="userId" id="editUserId">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>EMPLOYEE ID:</label>
+          <input type="text" placeholder="Enter Employee ID" name="employeeId">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Last Name:</label>
+          <input type="text" placeholder="Enter Last Name" name="lastName">
+        </div>
+        <div class="form-group">
+          <label>First Name:</label>
+          <input type="text" placeholder="Enter First Name" name="firstName">
+        </div>
+        <div class="form-group">
+          <label>Middle Name:</label>
+          <input type="text" placeholder="Enter Middle Name" name="middleName">
+        </div>
+        <div class="form-group">
+          <label>Extension Name:</label>
+          <select name="extensionName">
+            <option value="" disabled selected hidden>Extension Name</option>
+            <option>Jr.</option>
+            <option>Sr.</option>
+            <option>II</option>
+            <option>III</option>
+            <option>IV</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Job Description:</label>
+          <input type="text" placeholder="Enter Job Description" name="jobDescription">
+        </div>
+      </div>
+      <div class="form-grid-wide">
+        <div class="form-group">
+          <label>EMAIL:</label>
+          <input type="email" placeholder="Enter Email" name="email">
+        </div>
+        <div class="form-group">
+          <label>CONTACT NUMBER:</label>
+          <input type="text" placeholder="Enter Contact Number" name="contactNumber">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>USERNAME:</label>
+          <input type="text" placeholder="Enter Username" name="username">
+        </div>
+        <div class="form-group">
+          <label>UPLOAD PROFILE PICTURE:</label>
+          <label class="upload-btn">
+            <img src="https://www.svgrepo.com/show/33565/upload.svg" alt="Upload" />
+            Upload Profile
+            <input type="file" name="profilePic" style="display:none" accept="image/*" onchange="document.getElementById('fileNameDisplay').textContent = this.files[0] ? this.files[0].name : ''">
+          </label>
+          <span id="fileNameDisplay" style="color:#f5cc00;margin-top:0.5rem;"></span>
+        </div>
+      </div>
+      <div class="button-group">
+        <button type="submit" class="confirm-btn">CONFIRM</button>
+      </div>
+    </form>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.getElementById('editCoordinatorForm').onsubmit = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+
+  fetch('php/admin_update_coordinator.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Coordinator information updated successfully.',
+        confirmButtonColor: '#084018'
+      }).then(() => {
+        if (window.parent && window.parent !== window) {
+          window.parent.location.reload();
+        } else {
+          location.reload();
+        }
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message || 'An error occurred.',
+        confirmButtonColor: '#d33'
+      });
+    }
+  })
+  .catch(error => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Error updating coordinator: ' + error,
+      confirmButtonColor: '#d33'
+    });
+  });
+};
+
+// Listen for coordinator data from parent and populate the form
+window.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'EDIT_COORDINATOR' && event.data.data) {
+    const coor = event.data.data;
+    document.getElementsByName('employeeId')[0].value = coor.employee_id || '';
+    document.getElementsByName('lastName')[0].value = coor.last_name || '';
+    document.getElementsByName('firstName')[0].value = coor.first_name || '';
+    document.getElementsByName('middleName')[0].value = coor.middle_name || '';
+    document.getElementsByName('extensionName')[0].value = coor.extension_name || '';
+    document.getElementsByName('jobDescription')[0].value = coor.job_description || '';
+    document.getElementsByName('email')[0].value = coor.email || '';
+    document.getElementsByName('contactNumber')[0].value = coor.contact_number || '';
+    document.getElementsByName('username')[0].value = coor.username || '';
+    document.getElementById('editUserId').value = coor.user_id || '';
+    // Optionally, clear file input and fileNameDisplay
+    document.getElementsByName('profilePic')[0].value = '';
+    document.getElementById('fileNameDisplay').textContent = '';
+  }
+});
+</script>
+
+</body>
+</html>

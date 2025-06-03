@@ -1,0 +1,125 @@
+/* Mobile-specific styles */
+@media screen and (max-width: 768px) {
+  .panel-wrapper {
+    width: 95%;
+    height: auto;
+    min-height: 520px;
+    flex-direction: column;
+  }
+
+  .left-panel, .right-panel {
+    width: 100%;
+    border-radius: 16px;
+  }
+
+  .left-panel {
+    padding: 30px 20px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 0;
+  }
+
+  .right-panel {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+  }
+
+  .left-panel .logo {
+    width: 200px;
+    height: 200px;
+  }
+
+  .left-panel img {
+    width: 200px !important;
+    height: 200px !important;
+  }
+
+  .left-panel h2 {
+    font-size: 22px;
+  }
+
+  .left-panel p {
+    font-size: 14px;
+  }
+
+  .form-box {
+    width: 90%;
+    min-width: auto;
+    margin: 20px;
+    padding: 20px;
+  }
+
+  /* Navigation and menu adjustments */
+  .nav-menu {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .nav-item {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  /* Table adjustments */
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  table {
+    font-size: 14px;
+  }
+
+  /* Form adjustments */
+  input, select, textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Button adjustments */
+  button {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  /* Card and container adjustments */
+  .card, .container {
+    padding: 10px;
+    margin: 10px 0;
+  }
+
+  /* Hide certain elements on mobile */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Show mobile-specific elements */
+  .mobile-only {
+    display: block !important;
+  }
+}
+
+/* Additional breakpoint for very small devices */
+@media screen and (max-width: 480px) {
+  .left-panel .logo {
+    width: 150px;
+    height: 150px;
+  }
+
+  .left-panel img {
+    width: 150px !important;
+    height: 150px !important;
+  }
+
+  .form-box {
+    padding: 15px;
+  }
+
+  .left-panel h2 {
+    font-size: 20px;
+  }
+
+  .left-panel p {
+    font-size: 13px;
+  }
+} 

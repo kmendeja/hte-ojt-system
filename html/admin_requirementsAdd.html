@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>REQUIREMENTS MANAGEMENT-Add Form</title>
+  <!-- Add SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      background-color: #3b463e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+    }
+
+    .form-container {
+      background-color: #084018;
+      color: white;
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-header {
+      background-color: white;
+      color: #084018;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    select, input[type="text"] {
+      padding: 0.75rem;
+      border: 2px solid #f5cc00;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background-color: white;
+      color: black;
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
+    .radio-group-horizontal {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      padding: 0.75rem;
+      border: 2px solid #f5cc00;
+      border-radius: 0.5rem;
+      background-color: white;
+      color: black;
+    }
+
+    .radio-group-horizontal label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: flex-end;
+    }
+
+    .clear-btn, .confirm-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .clear-btn {
+      background-color: #6b7280;
+      color: white;
+    }
+
+    .confirm-btn {
+      background-color: #f5cc00;
+      color: black;
+    }
+
+    @media (max-width: 768px) {
+      .form-container {
+        padding: 1rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .radio-group-horizontal {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <form>
+      <div class="form-header">ADD REQUIREMENT</div>
+
+      <div class="form-grid">
+        <!-- Type of Requirement Dropdown -->
+        <div class="form-group">
+          <label for="Requirement">Type of Requirement:</label> <br>
+          <select id="Requirement"required>
+            <option value="" disabled selected hidden>Type of Requirement:</option>
+            <option value="pre">Pre-OJT Requirements</option>
+          <option value="post">Post-OJT Requirements</option>
+
+          </select>
+        </div>
+
+        <!-- Requirement Name -->
+        <div class="form-group">
+            <label>Requirement Name:</label> <br>
+            <input type="text" placeholder="Enter Requirement Name"required>
+    
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="button-group">
+        <button type="button" class="clear-btn" onclick="clearForm()">CLEAR</button>
+        <button type="submit" class="confirm-btn">CONFIRM</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Add SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+  <script>
+    const sectionDropdown = document.getElementById("section");
+    const programRadios = document.querySelectorAll('input[name="program"]');
+
+    programRadios.forEach(radio => {
+      radio.addEventListener("change", () => {
+        const selected = radio.value;
+        sectionDropdown.innerHTML = '<option value="" disabled selected hidden>Select Section</option>';
+
+        let sections = [];
+        if (selected === "bsit") {
+          sections = ["4-A", "4-B", "4-C"];
+        } else if (selected === "bscs") {
+          sections = ["4-A"];
+        }
+
+        sections.forEach(section => {
+          const option = document.createElement("option");
+          option.value = section;
+          option.textContent = section;
+          sectionDropdown.appendChild(option);
+        });
+      });
+    });
+
+    document.querySelector("form").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        
+        const requirementType = document.getElementById("Requirement").value;
+        const requirementName = document.querySelector('input[type="text"]').value;
+        
+        if (!requirementType || !requirementName) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Please fill in all fields'
+            });
+            return;
+        }
+        
+        try {
+            const response = await fetch('php/requirements_handler.php?action=add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    requirement_name: requirementName,
+                    requirement_type: requirementType
+                })
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                // Show success message
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Added!',
+                    text: 'Requirement has been added successfully.',
+                    timer: 1500
+                });
+                
+                // Notify parent window to reload requirements
+                if (window.parent && typeof window.parent.loadRequirements === 'function') {
+                    window.parent.loadRequirements();
+                }
+                // Close the modal
+                if (window.parent && typeof window.parent.closeAddModal === 'function') {
+                    window.parent.closeAddModal();
+                }
+                // Clear the form
+                clearForm();
+            } else {
+                throw new Error(result.message || 'Error adding requirement');
+            }
+        } catch (error) {
+            console.error('Error adding requirement:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Error adding requirement. Please try again.'
+            });
+        }
+    });
+
+    function clearForm() {
+        document.getElementById("Requirement").selectedIndex = 0;
+        document.querySelector('input[type="text"]').value = '';
+    }
+  </script>
+</body>
+</html>
